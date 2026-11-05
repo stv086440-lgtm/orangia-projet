@@ -202,4 +202,4 @@ Documents disponibles :
 
 # 📄 Licence
 
-Projet académique réalisé dans le cadre d'un projet de développement logiciel.
+Projet académique réalisé dans le cadre d'un projet de développement logiciel. FSAT 2027
