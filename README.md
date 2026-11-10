@@ -34,7 +34,7 @@ L'application a pour objectif de centraliser la gestion des exploitations agrico
 
 ### Chef de Projet
 
-- Ilyas Koutou
+- Ilyas el Koutou
 
 ### Membres
 
