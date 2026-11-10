@@ -30,7 +30,7 @@ L'application a pour objectif de centraliser la gestion des exploitations agrico
 
 ---
 
-# 👥 Équipe
+# 👥 Équipes
 
 ### Chef de Projet
 
