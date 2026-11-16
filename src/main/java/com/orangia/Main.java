@@ -1,4 +1,4 @@
-package main.java.com.orangia;
+package com.orangia;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
