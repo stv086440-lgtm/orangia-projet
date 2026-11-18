@@ -1,44 +1,51 @@
-# ARCHITECTURE GLOBALE — ORANGIA
+# ORANGIA — ARCHITECTURE GLOBALE
 
-**Application desktop de gestion d'une exploitation agricole spécialisée dans la production d'oranges**
+*Application desktop de gestion d'une exploitation agricole spécialisée dans la production d'oranges*
 
-| Élément | Choix |
-|---|---|
-| Langage | Java 21 |
-| Interface graphique | JavaFX 24 + FXML + CSS |
-| Architecture | MVC + Service + DAO |
-| Base de données | PostgreSQL |
-| Accès aux données | JDBC |
-| Gestion du projet | Maven |
-| Tests | JUnit 5 |
-| IDE | Visual Studio Code |
-| Nom du projet | ORANGIA |
+*Version :* 3.1  
+*Date :* Novembre 2026  
+*Statut :* Référence architecturale cible  
+*Base de données :* PostgreSQL  
+*Langage :* Java 21 (LTS)  
+*Interface graphique :* JavaFX 21  
+*Architecture :* MVC + Service + DAO
 
 ---
 
-# 1. Présentation du projet
+# 1. Présentation générale
 
-ORANGIA est une application desktop destinée à faciliter la gestion d'une exploitation agricole spécialisée dans la production d'oranges.
+ORANGIA est une application desktop destinée à la gestion centralisée d'une entreprise agricole spécialisée dans la production et l'exploitation d'oranges.
 
-L'application centralise la gestion des fermes, des parcelles, des ouvriers, des présences, des récoltes, des expéditions, des clients et des opérations financières.
+Elle permet de gérer plusieurs fermes, leurs parcelles, les ouvriers, les présences, les récoltes, les expéditions, les clients, les dépenses et les opérations financières.
 
-Elle repose sur quatre espaces de travail indépendants, chacun disposant de ses propres fonctionnalités et autorisations.
+L'application comporte quatre espaces de travail correspondant aux responsabilités des utilisateurs :
+
+1. Administrateur.
+2. Responsable de Ferme.
+3. Agent RH.
+4. Comptable.
+
+Chaque utilisateur accède uniquement aux fonctionnalités autorisées par son rôle.
 
 ## 1.1 Objectifs
 
-- Centraliser les informations des exploitations agricoles.
-- Faciliter le suivi des récoltes et des expéditions.
-- Organiser la gestion du personnel et des présences.
-- Assurer le suivi des dépenses et des recettes.
+- Centraliser les informations des différentes fermes.
+- Gérer les parcelles et les opérations agricoles.
+- Enregistrer et suivre les récoltes.
 - Calculer automatiquement le stock disponible.
-- Protéger les informations selon les responsabilités de chaque utilisateur.
-- Générer des rapports et conserver l'historique des opérations.
+- Gérer les expéditions et les clients.
+- Organiser les présences et les affectations des ouvriers.
+- Calculer les salaires et suivre les paiements.
+- Gérer les demandes de dépenses et les dépenses réelles.
+- Assurer la traçabilité des opérations.
+- Générer des rapports.
+- Protéger les données selon les responsabilités des utilisateurs.
 
 ## 1.2 Périmètre fonctionnel
 
-L'application comprend :
+Le système comprend :
 
-1. Authentification et gestion des utilisateurs.
+1. Authentification et gestion des comptes.
 2. Gestion des fermes et des parcelles.
 3. Gestion des ouvriers et des affectations.
 4. Gestion des présences et des corrections.
@@ -46,332 +53,524 @@ L'application comprend :
 6. Gestion des récoltes.
 7. Gestion des clients.
 8. Gestion des expéditions.
-9. Gestion des dépenses et des demandes de dépenses.
-10. Gestion des documents et notifications.
-11. Journalisation des actions.
-12. Paramètres système et sauvegardes.
-13. Tableaux de bord et rapports.
+9. Gestion des paiements clients.
+10. Gestion des demandes de dépenses.
+11. Gestion des dépenses réelles.
+12. Gestion des documents.
+13. Gestion des notifications.
+14. Journalisation des actions.
+15. Paramètres système.
+16. Sauvegardes et restaurations.
+17. Tableaux de bord et rapports.
 
-**Principe concernant le stock :** le stock d'oranges est calculé à partir des récoltes et des expéditions confirmées. Il ne s'agit pas d'un stock saisi manuellement. La gestion des stocks d'intrants agricoles n'est pas comprise dans le périmètre.
+*Limite du périmètre :* ORANGIA gère le stock d'oranges produites. La gestion des intrants agricoles, des engrais, des pesticides et du matériel n'est pas comprise dans cette version.
+
+## 1.3 Principes fondamentaux
+
+- Une seule application pour les quatre espaces.
+- Une seule base de données centralisée.
+- Une seule entité métier par objet, indépendamment du rôle.
+- Les autorisations sont contrôlées dans les Services.
+- Les données historiques sont conservées.
+- Les opérations sensibles sont transactionnelles.
+- Le stock disponible est calculé automatiquement.
+- Aucun utilisateur ne doit pouvoir modifier directement une opération historique depuis une page de consultation.
 
 ---
 
 # 2. Technologies utilisées
 
-| Technologie | Utilisation |
-|---|---|
-| Java 21 | Logique et développement |
-| JavaFX 24 | Interface desktop |
-| FXML | Structure des interfaces |
-| CSS | Mise en forme graphique |
-| PostgreSQL | Stockage des données |
-| JDBC | Communication Java / PostgreSQL |
-| Maven | Dépendances et compilation |
-| JUnit 5 | Tests unitaires |
-| Git / GitHub | Versionnement et collaboration |
+| Technologie | Version cible | Utilisation |
+|---|---|---|
+| Java | 21 LTS | Langage principal |
+| JavaFX | 21 | Interface desktop |
+| FXML | JavaFX 21 | Structure des interfaces |
+| CSS | JavaFX CSS 21 | Design des interfaces |
+| PostgreSQL | Version installée compatible | Base de données |
+| JDBC | Driver PostgreSQL compatible | Communication avec la base |
+| Maven | 3.9.x ou version compatible | Dépendances et compilation |
+| JUnit 5 | Version compatible | Tests |
+| Git | Version stable | Versionnement |
+| GitHub | — | Collaboration |
+| Visual Studio Code | — | Édition et développement |
+
+## 2.1 Configuration du projet
+
+L'environnement technique cible est basé sur :
+
+- JDK 21.
+- JavaFX 21.
+- Maven 3.9.x.
+- PostgreSQL.
+- JDBC PostgreSQL.
+- Classe principale : ma.orangia.MainApp.
+
+La classe MainApp étend javafx.application.Application.
+
+Le projet doit être compilé et exécuté avec Java 21.
+
+Le package racine existant ma.orangia doit être conservé.
+
+Aucun renommage global de package ou changement de classe principale ne doit être réalisé sans vérification du code source et du pom.xml.
+
+## 2.2 Configuration Maven
+
+Le projet utilise notamment les dépendances suivantes :
+
+- javafx-controls
+- javafx-fxml
+- postgresql
+- junit-jupiter
+
+Le pom.xml doit également contenir les plugins nécessaires :
+
+- maven-compiler-plugin
+- javafx-maven-plugin
+- maven-surefire-plugin
+
+La configuration doit être cohérente avec Java 21 et JavaFX 21.
+
+La propriété de compilation Java doit être :
+
+xml
+<maven.compiler.release>21</maven.compiler.release>
+
+
+La version exacte des dépendances doit être centralisée dans les propriétés Maven.
 
 ---
 
 # 3. Architecture technique
 
-ORANGIA adopte une architecture en couches basée sur MVC, complétée par les couches Service et DAO.
+ORANGIA utilise une architecture en couches basée sur MVC, complétée par Service et DAO.
 
-## 3.1 Schéma général
+## 3.1 Architecture générale
 
-```text
-                  UTILISATEUR
-                       |
-                       v
-                 VIEW (FXML)
-                       |
-                       v
-                CONTROLLER
-                       |
-                       v
-                  SERVICE
-                       |
-                       v
+text
+                 UTILISATEUR
+                      |
+                      v
+                JAVA FX VIEW
+                  FXML / CSS
+                      |
+                      v
+                 CONTROLLER
+                      |
+                      v
+                   SERVICE
+                      |
+                      v
                     DAO
-                       |
-                       v
-                JDBC / DATABASE
-                       |
-                       v
-                  POSTGRESQL
-```
+                      |
+                      v
+                  JDBC / SQL
+                      |
+                      v
+                 POSTGRESQL
 
-Le Model représente les données métier manipulées par les différentes couches.
+              MODEL : OBJETS MÉTIER
 
-## 3.2 Responsabilité des couches
 
-### View — FXML
+Le Model représente les objets métier utilisés par les différentes couches.
 
-La View représente l'interface graphique.
+## 3.2 View
 
-Elle contient :
-- Les formulaires.
-- Les tableaux.
-- Les boutons.
-- Les menus.
-- Les fenêtres de dialogue.
-- Les composants visuels.
+Technologies : JavaFX 21, FXML et CSS.
 
-Elle ne contient aucune règle métier ni requête SQL.
+Responsabilités :
 
-### Controller — Java
+- Afficher les informations.
+- Présenter les formulaires.
+- Afficher les tableaux.
+- Proposer les actions disponibles.
+- Afficher les messages.
+- Assurer la navigation.
 
-Le Controller assure la communication entre l'interface et la couche Service.
+La View ne contient ni requêtes SQL ni règles métier.
 
-Il est responsable de :
-- Récupérer les informations saisies.
-- Déclencher les actions demandées.
-- Appeler les méthodes des Services.
-- Actualiser les données affichées.
-- Afficher les messages de résultat.
+## 3.3 Controller
 
-Il ne contient pas de requêtes SQL et ne doit pas porter les règles métier principales.
+Responsabilités :
 
-### Service — Java
+- Récupérer les données saisies.
+- Vérifier les données élémentaires de l'interface.
+- Appeler les Services.
+- Actualiser les composants graphiques.
+- Présenter les résultats.
+- Gérer les événements JavaFX.
 
-Le Service contient les règles métier de l'application.
+Les Controllers ne doivent pas contenir les règles métier principales.
 
-Il est responsable de :
+Ils ne doivent pas communiquer directement avec PostgreSQL.
+
+## 3.4 Service
+
+Le Service constitue le centre de la logique métier.
+
+Responsabilités :
+
 - Valider les opérations métier.
-- Vérifier les autorisations.
-- Contrôler les conditions nécessaires avant une opération.
-- Coordonner plusieurs DAO si nécessaire.
-- Gérer les transactions métier.
-- Garantir la cohérence des données.
-
-### DAO — Java
-
-Le DAO assure l'accès à la base de données.
-
-Il contient :
-- Les requêtes SQL.
-- Les opérations INSERT.
-- Les opérations UPDATE.
-- Les opérations SELECT.
-- Les opérations DELETE autorisées.
-- La conversion des résultats SQL en objets Model.
-
-### Model — Java
-
-Le Model représente les objets métier de l'application.
+- Contrôler les autorisations.
+- Vérifier les statuts.
+- Appliquer les règles de gestion.
+- Coordonner plusieurs DAO.
+- Gérer les transactions.
+- Garantir la cohérence des opérations.
 
 Exemples :
+
+- AuthService
+- RecolteService
+- ExpeditionService
+- StockService
+- PresenceService
+- SalaireService
+- DepenseService
+- UtilisateurService
+- AdminCodeService
+
+Les transactions doivent être exécutées au niveau de la couche Service ou d'un composant transactionnel appelé par celle-ci.
+
+## 3.5 DAO
+
+Le DAO assure la communication avec PostgreSQL.
+
+Responsabilités :
+
+- Exécuter les requêtes SQL.
+- Effectuer les opérations CRUD.
+- Charger les données.
+- Convertir les résultats SQL en objets métier.
+- Utiliser des requêtes préparées.
+- Participer aux transactions avec une connexion partagée lorsque plusieurs opérations doivent être atomiques.
+
+Les DAO ne doivent pas décider des autorisations métier.
+
+## 3.6 Model
+
+Le Model représente les entités métier.
+
+Exemples :
+
 - Utilisateur
+- Role
 - Ferme
 - Parcelle
 - Ouvrier
+- AffectationOuvrier
+- TarifOuvrier
+- FichePresence
 - Presence
 - Recolte
 - Client
 - Expedition
+- PaiementExpedition
+- DemandeDepense
 - Depense
 - Salaire
+
+## 3.7 Règles techniques supplémentaires
+
+- Les requêtes JDBC ne doivent pas bloquer le JavaFX Application Thread.
+- Les opérations longues doivent utiliser Task, Service JavaFX ou un ExecutorService.
+- Les connexions JDBC doivent être correctement fermées.
+- Les transactions doivent gérer explicitement commit et rollback.
+- Les connexions doivent utiliser des paramètres de configuration et non des identifiants écrits directement dans le code.
+- Les traitements de sécurité doivent être centralisés dans les composants dédiés.
+- Les informations sensibles ne doivent jamais être enregistrées dans les logs.
 
 ---
 
 # 4. Gestion des espaces et des rôles
 
-ORANGIA comporte quatre espaces de travail :
-
-1. Administrateur
-2. Responsable de Ferme
-3. Agent RH
-4. Comptable
-
-Chaque espace possède ses propres droits.
+ORANGIA comporte exactement quatre rôles prédéfinis.
 
 ## 4.1 Administrateur
 
-L'Administrateur est responsable de la configuration générale de l'application.
+L'Administrateur gère la configuration générale et supervise les activités de l'entreprise.
 
-Ses fonctionnalités :
+Fonctionnalités :
 
-- Tableau de bord.
-- Gestion des utilisateurs et des espaces.
-- Gestion des fermes et des parcelles.
-- Supervision globale.
-- Historique et rapports.
-- Paramètres système.
+1. Tableau de bord.
+2. Utilisateurs & espaces.
+3. Fermes & parcelles.
+4. Supervision globale.
+5. Historique & rapports.
+6. Paramètres système.
 
-L'Administrateur peut :
+Autorisations :
+
 - Créer et gérer les comptes.
-- Activer et désactiver les utilisateurs.
+- Activer et désactiver les comptes.
 - Réinitialiser les mots de passe.
+- Gérer les codes alphanumériques des comptes Administrateur selon les procédures de sécurité.
 - Attribuer un Responsable à une ferme.
-- Créer et gérer les fermes et parcelles.
-- Consulter les informations globales.
-- Consulter les journaux d'activité.
-- Configurer les horaires de travail.
-- Effectuer des sauvegardes et restaurations.
+- Gérer les fermes.
+- Gérer les parcelles.
+- Consulter les opérations globales.
+- Consulter les journaux.
+- Configurer les paramètres.
+- Effectuer les sauvegardes et restaurations.
 
-La supervision globale est en consultation : elle ne donne pas à l'Administrateur le droit de modifier les opérations métier des autres espaces.
+L'Administrateur possède une visibilité globale.
+
+La supervision est en lecture seule pour les opérations métier des autres espaces.
+
+Il ne remplace pas le Responsable, RH ou le Comptable dans l'exécution de leurs opérations.
 
 ## 4.2 Responsable de Ferme
 
-Chaque Responsable est associé à une seule ferme.
+Chaque Responsable est associé à une seule ferme active.
 
-Il ne peut consulter et gérer que les données de sa propre ferme.
+Ses données sont automatiquement filtrées selon cette ferme.
 
-Ses fonctionnalités :
+Fonctionnalités :
 
-- Tableau de bord.
-- Récoltes.
-- Expéditions.
-- Présences et demandes.
-- Historique.
+1. Tableau de bord.
+2. Récoltes.
+3. Expéditions.
+4. Présences & Demandes.
+5. Historique.
 
-Il peut :
+Autorisations :
+
 - Enregistrer les récoltes.
-- Consulter le stock disponible de sa ferme.
-- Créer et gérer les opérations d'expédition.
-- Consulter et gérer les clients nécessaires aux expéditions.
-- Saisir les présences des ouvriers.
-- Transmettre les présences au service RH.
+- Modifier les récoltes autorisées.
+- Annuler les récoltes avec motif.
+- Consulter le stock.
+- Créer les expéditions.
+- Modifier les expéditions selon leur statut.
+- Soumettre une demande d'annulation ou de révision lorsque nécessaire.
+- Gérer les informations opérationnelles des clients.
+- Joindre les bons de livraison.
+- Saisir les présences.
+- Transmettre les fiches à RH.
 - Soumettre des demandes de correction.
 - Créer des demandes de dépenses.
-- Consulter son historique opérationnel.
+- Consulter son historique.
 
-Il ne peut pas :
-- Consulter les prix des expéditions.
-- Consulter les montants financiers des expéditions.
-- Consulter les paiements ou soldes des clients.
+Interdictions :
+
+- Consulter les prix unitaires des expéditions.
+- Consulter les montants financiers des clients.
+- Consulter les paiements.
+- Enregistrer les paiements clients.
 - Confirmer financièrement une expédition.
-- Gérer les comptes utilisateurs.
-- Gérer directement les ouvriers et leurs affectations.
+- Gérer les dossiers RH.
+- Modifier les affectations des ouvriers.
+- Calculer ou payer les salaires.
+- Gérer les dépenses réelles.
+- Accéder aux données d'autres fermes.
 
 ## 4.3 Agent RH
 
-L'Agent RH est global : il intervient sur toutes les fermes.
+RH est un espace global couvrant toutes les fermes.
 
-Ses fonctionnalités :
+Fonctionnalités :
 
-- Tableau de bord RH.
-- Gestion du personnel.
-- Pointage et gestion des salaires.
-- Génération des rapports RH.
+1. Tableau de bord RH.
+2. Gestion du personnel.
+3. Pointage et gestion des salaires.
+4. Génération des rapports RH.
 
-Il peut :
+Autorisations :
+
 - Créer et gérer les dossiers des ouvriers.
 - Affecter les ouvriers aux fermes.
-- Transférer un ouvrier d'une ferme à une autre.
-- Conserver l'historique des affectations.
-- Consulter et valider les présences transmises.
+- Transférer les ouvriers.
+- Consulter les historiques d'affectation.
+- Consulter les fiches de présence.
+- Valider les présences.
 - Traiter les demandes de correction.
 - Gérer les justificatifs.
 - Calculer les salaires.
-- Enregistrer les paiements des salaires.
+- Enregistrer les paiements.
+- Appliquer les règles particulières de rémunération.
 - Générer les rapports RH.
 
-Les ouvriers ne possèdent pas de comptes de connexion à l'application.
+Les ouvriers ne disposent pas de comptes de connexion.
+
+RH conserve les historiques des affectations, présences et salaires.
 
 ## 4.4 Comptable
 
-Le Comptable est global : il intervient sur toutes les fermes.
+Le Comptable dispose d'un accès global aux informations financières autorisées.
 
-Ses fonctionnalités :
+Fonctionnalités :
 
-- Tableau de bord.
-- Gestion des récoltes et du stock.
-- Gestion des clients et suivi commercial.
-- Gestion des dépenses et des demandes de dépenses.
-- Historique et rapports.
+1. Tableau de bord.
+2. Récoltes & stock.
+3. Clients & suivi commercial.
+4. Dépenses & demandes de dépenses.
+5. Historique & rapports.
 
-Il peut :
+Autorisations :
+
 - Consulter les récoltes.
-- Consulter le stock disponible.
+- Consulter le stock.
 - Consulter et gérer les clients.
+- Consulter les expéditions.
 - Confirmer ou refuser les expéditions.
-- Gérer les paiements des expéditions.
-- Consulter les recettes et les bilans.
+- Gérer les informations financières.
+- Enregistrer les paiements clients.
+- Consulter les recettes.
 - Traiter les demandes de dépenses.
-- Enregistrer les dépenses réellement effectuées.
+- Enregistrer les dépenses réelles.
+- Consulter les coûts salariaux agrégés.
 - Générer les rapports financiers.
 
-Il ne peut pas :
+Interdictions :
+
 - Modifier les récoltes.
-- Modifier les quantités opérationnelles des expéditions.
-- Créer ou annuler une expédition.
-- Gérer les ouvriers et leurs salaires.
-- Modifier les informations de présence.
+- Créer les expéditions à la place du Responsable.
+- Modifier les quantités opérationnelles d'une expédition.
+- Modifier les présences.
+- Gérer les dossiers individuels RH.
+- Calculer les salaires.
+- Enregistrer les paiements de salaires.
 
 ---
 
 # 5. Authentification et navigation
 
-## 5.1 Parcours de connexion obligatoire
+## 5.1 Parcours de connexion
 
-Au lancement de l'application, l'utilisateur arrive sur un écran de sélection de l'espace de travail.
+Au lancement :
 
-```text
-                  LANCEMENT ORANGIA
-                         |
-                         v
-              CHOIX DE L'ESPACE
-                         |
-          +--------------+--------------+
-          |              |              |
-          v              v              v
-    ADMINISTRATEUR  RESPONSABLE       AGENT RH
-          |              |              |
-          +--------------+--------------+
-                         |
-                         v
-                     COMPTABLE
-```
+text
+                LANCEMENT ORANGIA
+                       |
+                       v
+             SÉLECTION DE L'ESPACE
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+     ADMINISTRATEUR RESPONSABLE     RH
+          |            |            |
+          +------------+------------+
+                       |
+                       v
+                   COMPTABLE
 
-Chaque espace possède son propre écran de connexion.
 
-Le formulaire contient uniquement :
-- Identifiant.
-- Mot de passe.
+Chaque espace utilise le même mécanisme général d'authentification, mais les informations demandées dépendent du rôle sélectionné.
+
+### 5.1.1 Authentification Administrateur
+
+L'accès à l'espace Administrateur nécessite obligatoirement trois informations :
+
+1. Identifiant.
+2. Mot de passe.
+3. Code alphanumérique.
+
+Le code alphanumérique constitue une information de sécurité supplémentaire réservée au compte Administrateur.
+
+*Champs du formulaire :*
+
+| Champ | Description | Obligatoire |
+|---|---|---|
+| Identifiant | Identifiant unique du compte Administrateur | Oui |
+| Mot de passe | Mot de passe du compte Administrateur | Oui |
+| Code alphanumérique | Code personnel supplémentaire | Oui |
+
+Le formulaire Administrateur doit être distinct du formulaire général utilisé par les autres espaces.
 
 Le système vérifie :
+
 1. L'existence du compte.
 2. La validité du mot de passe.
-3. L'état actif du compte.
-4. La correspondance entre le rôle du compte et l'espace sélectionné.
+3. La validité du code alphanumérique.
+4. Le statut actif du compte.
+5. La correspondance avec le rôle Administrateur.
 
-Si un compte appartient à un autre espace, l'accès est refusé avec le message :
+L'accès est autorisé uniquement si les trois informations sont valides et si le compte est actif.
 
-`Ce compte n'appartient pas à l'espace sélectionné.`
+Le code alphanumérique doit être généré ou attribué de manière sécurisée lors de la création ou de la configuration du compte Administrateur.
 
-Après une authentification réussie, l'utilisateur est redirigé vers son interface.
+Il ne doit jamais être enregistré en clair dans PostgreSQL.
 
-## 5.2 Création des comptes
+### 5.1.2 Authentification des autres espaces
 
-La création des comptes n'est pas disponible sur l'écran public de connexion.
+Les espaces suivants utilisent une authentification classique :
 
-Seul l'Administrateur peut créer et gérer les comptes depuis :
+- Responsable de Ferme.
+- Agent RH.
+- Comptable.
 
-`Administrateur → Utilisateurs & espaces`
+L'authentification nécessite uniquement :
 
-## 5.3 Structure d'authentification
+1. Identifiant.
+2. Mot de passe.
 
-```text
-controller/
-└── auth/
-    ├── WorkspaceSelectionController.java
-    └── LoginController.java
+Le système vérifie :
 
-service/
-└── AuthService.java
+- L'existence du compte.
+- Le mot de passe.
+- Le statut actif.
+- Le rôle.
+- La correspondance entre le rôle et l'espace sélectionné.
 
-dao/
-└── UtilisateurDAO.java
+Le code alphanumérique supplémentaire n'est pas demandé aux autres utilisateurs.
 
-model/
-└── Utilisateur.java
+Un compte ne peut accéder qu'à son propre espace.
 
-resources/
-└── fxml/
-    └── auth/
-        ├── WorkspaceSelectionView.fxml
-        └── LoginView.fxml
-```
+### 5.1.3 Vérification des erreurs
+
+Messages possibles :
+
+| Situation | Message |
+|---|---|
+| Identifiant incorrect | Identifiant ou informations de connexion incorrects. |
+| Mot de passe incorrect | Identifiant ou informations de connexion incorrects. |
+| Code incorrect | Identifiant ou informations de connexion incorrects. |
+| Champ obligatoire vide | Veuillez remplir tous les champs obligatoires. |
+| Compte désactivé | Ce compte est désactivé. |
+| Mauvais espace | Ce compte n'appartient pas à l'espace sélectionné. |
+
+Les erreurs d'identifiant, de mot de passe et de code Administrateur doivent utiliser un message générique afin de ne pas révéler quelle information est incorrecte.
+
+Les tentatives de connexion doivent être journalisées selon les règles de sécurité.
+
+### 5.2 Création des comptes
+
+La création des comptes est réservée à l'Administrateur.
+
+Aucune inscription publique n'est autorisée.
+
+Pour le compte Administrateur :
+
+- Un identifiant unique est défini.
+- Un mot de passe sécurisé est défini.
+- Un code alphanumérique personnel est attribué.
+- Le mot de passe est stocké sous forme de hash.
+- Le code alphanumérique est également stocké sous forme de hash.
+
+Pour les autres comptes :
+
+- Un identifiant unique est défini.
+- Un mot de passe sécurisé est défini.
+- Le hash du mot de passe est enregistré.
+
+L'Administrateur ne peut jamais consulter les mots de passe ou les codes existants.
+
+Il peut uniquement déclencher leur réinitialisation selon les procédures prévues.
+
+### 5.3 Session
+
+Après authentification, une session applicative conserve au minimum :
+
+- ID utilisateur.
+- Rôle.
+- Statut du compte.
+- ID de ferme pour le Responsable.
+- Informations nécessaires au contrôle d'accès.
+
+Le code alphanumérique et le mot de passe ne sont jamais conservés dans la session après leur vérification.
+
+La déconnexion invalide la session et libère les ressources associées.
+
+La session est utilisée par les Services pour déterminer les autorisations.
 
 ---
 
@@ -379,170 +578,444 @@ resources/
 
 ## 6.1 Gestion des fermes
 
-- Chaque ferme possède ses propres parcelles.
-- Chaque Responsable est affecté à une seule ferme.
-- RH et Comptable ont une vision globale.
-- Les données opérationnelles d'un Responsable sont filtrées selon sa ferme.
+- Une ferme possède plusieurs parcelles.
+- Une parcelle appartient à une seule ferme.
+- Un Responsable actif est affecté à une seule ferme.
+- Une ferme ne possède qu'un Responsable principal actif à la fois.
+- RH et Comptable disposent d'un accès global.
+- Les données du Responsable sont automatiquement filtrées par sa ferme.
+
+L'affectation du Responsable est enregistrée dans le compte utilisateur ou dans la relation retenue par le schéma existant.
 
 ## 6.2 Gestion des ouvriers
 
-- Les ouvriers ne disposent pas de comptes utilisateurs.
-- RH gère les dossiers des ouvriers.
-- RH peut transférer un ouvrier entre fermes.
-- Les historiques de présence et de salaire sont conservés après un transfert.
-- Cabran et Naïb restent des ouvriers ordinaires dans le système, avec des règles salariales particulières.
+- Un ouvrier ne possède pas de compte applicatif.
+- RH gère les dossiers.
+- RH gère les affectations.
+- Chaque affectation conserve sa période de validité.
+- Un ouvrier ne peut avoir qu'une affectation principale active à la fois.
+- Les transferts conservent l'historique.
+- Les tarifs sont historisés.
+- Cabran et Naïb restent des ouvriers ordinaires dans la base.
+
+Le transfert d'un ouvrier ne modifie jamais les anciennes présences ou les anciens salaires.
 
 ## 6.3 Présences
 
-- Le Responsable saisit les présences et les transmet à RH.
-- RH valide les fiches et traite les demandes de correction.
-- Après transmission, le Responsable ne peut plus modifier directement la fiche.
-- Les dimanches et jours de repos ne sont pas considérés comme des absences.
-- Les horaires de travail sont configurés par l'Administrateur.
-- Chaque présence historique conserve les horaires appliqués au moment du traitement.
+Le processus est le suivant :
+
+1. Le Responsable prépare la fiche.
+2. Il sélectionne la date.
+3. Il sélectionne les ouvriers de sa ferme.
+4. Il coche les absences.
+5. Il joint le justificatif si disponible.
+6. Il transmet la fiche à RH.
+7. RH vérifie et valide ou retourne la fiche.
+8. Les corrections suivent une demande spécifique.
+
+Statuts :
+
+- BROUILLON
+- TRANSMISE
+- EN_TRAITEMENT
+- VALIDEE
+- RETOURNEE
+
+Après transmission, le Responsable ne peut plus modifier directement la fiche.
+
+Les corrections passent par DEMANDE_CORRECTION.
+
+Une fiche représente une journée pour une ferme.
+
+Une seule fiche active par ferme et par date est autorisée.
+
+Les dimanches et jours de repos configurés ne sont pas considérés comme des absences.
+
+Chaque enregistrement historique conserve :
+
+- La date.
+- Les horaires appliqués.
+- Le statut.
+- L'ouvrier.
+- La ferme concernée.
+- Les informations de validation.
+
+Les justificatifs acceptés restent conservés.
 
 ## 6.4 Salaires
 
-- RH est responsable du calcul et du paiement des salaires.
-- Le salaire journalier d'un ouvrier absent un jour ouvrable est nul pour cette journée.
-- Le salaire mensuel fixe n'est pas proratisé sans règle contractuelle explicite.
-- Les paiements partiels sont possibles et conservés dans l'historique.
-- Le Comptable peut consulter uniquement les coûts salariaux agrégés nécessaires aux bilans.
+RH est responsable du calcul et du paiement des salaires.
 
-Règle particulière de Cabran :
-- Son bonus est configurable séparément du salaire de base.
-- Jusqu'à deux absences injustifiées dans le mois, le bonus est conservé.
-- À partir de trois absences injustifiées, le bonus du mois est perdu.
+Principes :
+
+- Le salaire journalier dépend des journées rémunérables.
+- Une absence injustifiée sur un jour ouvrable ne génère pas de salaire journalier.
+- Le salaire mensuel fixe suit les règles contractuelles définies.
+- Les paiements partiels sont autorisés.
+- Les paiements historiques ne sont jamais remplacés par un nouveau calcul.
+- Les tarifs applicables sont historisés.
+
+Chaque salaire calculé conserve un instantané des paramètres utilisés : tarif, période, absences prises en compte, bonus et montant calculé.
+
+*Règle de Cabran :*
+
+- Jusqu'à deux absences injustifiées dans le mois : bonus conservé.
+- À partir de trois absences injustifiées : bonus mensuel perdu.
 - Les justificatifs médicaux acceptés ne comptent pas comme absences injustifiées.
+- Les dimanches et jours de repos ne sont pas comptabilisés comme absences injustifiées.
+- Le bonus est configurable par l'Administrateur.
+
+*Règle de Naïb :*
+
+- Sa rémunération suit ses règles spécifiques.
+- La règle du bonus de Cabran ne lui est pas appliquée automatiquement.
+
+Toute modification future des paramètres ne doit pas modifier les salaires déjà calculés.
 
 ## 6.5 Récoltes
 
-- Le Responsable enregistre les récoltes.
-- Plusieurs récoltes peuvent être enregistrées pour une même parcelle le même jour.
-- Une récolte enregistrée et non annulée augmente immédiatement le stock.
-- Une récolte annulée reste conservée dans l'historique avec son motif.
-- Le stock ne doit jamais devenir négatif.
+- Une récolte appartient à une parcelle.
+- Une parcelle appartient à une ferme.
+- Plusieurs récoltes sont possibles pour la même parcelle et la même journée.
+- La quantité doit être strictement positive.
+- Une récolte valide augmente le stock.
+- Une récolte annulée reste dans l'historique.
+- Une récolte annulée n'est plus prise en compte dans le stock.
+
+Toute modification importante est journalisée.
 
 ## 6.6 Expéditions
 
 Le processus est partagé entre Responsable et Comptable.
 
-**Responsable :**
-- Crée l'expédition.
-- Renseigne les informations opérationnelles.
-- Modifie les informations opérationnelles selon les règles.
-- Ne voit jamais les informations financières.
+*Responsable :*
 
-**Comptable :**
-- Vérifie les informations.
-- Confirme ou refuse l'expédition.
-- Gère les informations financières et les paiements.
+- Crée l'expédition.
+- Renseigne le client.
+- Renseigne la date.
+- Renseigne la quantité physique expédiée.
+- Ajoute le bon de livraison.
+- Modifie les informations opérationnelles autorisées.
+- Soumet les demandes de révision ou d'annulation selon le statut.
+
+*Comptable :*
+
+- Vérifie l'expédition.
+- Confirme ou refuse.
+- Définit les informations financières.
+- Gère les paiements.
+- Traite les conséquences financières d'une annulation.
+
+Statuts :
+
+- BROUILLON
+- EN_ATTENTE_CONFIRMATION
+- CONFIRMEE
+- REFUSEE
+- REVISION_EN_ATTENTE
+- ANNULATION_EN_ATTENTE
+- ANNULEE
 
 Règles :
-- Une expédition non confirmée ne réduit pas le stock.
-- Une expédition confirmée réduit le stock.
-- L'annulation d'une expédition confirmée restaure le stock.
-- Une modification opérationnelle après confirmation impose une nouvelle confirmation comptable.
-- Les anciens paiements ne sont pas modifiés automatiquement.
-- La confirmation vérifie le stock disponible de manière transactionnelle pour éviter les expéditions supérieures au stock réel.
 
-## 6.7 Dépenses
+1. Une expédition non confirmée ne réduit pas le stock.
+2. Une expédition confirmée réduit le stock.
+3. Une expédition refusée ne réduit pas le stock.
+4. Une expédition annulée restaure la quantité physique précédemment déduite.
+5. Une expédition confirmée ne peut pas être modifiée directement.
+6. Une modification opérationnelle nécessite une révision et une nouvelle confirmation.
+7. L'ancienne version confirmée reste consultable.
+8. Les paiements historiques ne sont jamais supprimés automatiquement.
+9. Une annulation après paiement nécessite un traitement financier par le Comptable.
+10. La quantité physique expédiée est distincte de la quantité facturée.
+11. Le stock est contrôlé de façon transactionnelle lors de la confirmation.
+12. Deux confirmations simultanées ne doivent jamais permettre un stock négatif.
 
-- Le Responsable soumet une demande de dépense.
-- Le Comptable accepte ou refuse la demande avec un commentaire.
-- L'acceptation ne crée pas automatiquement une dépense réelle.
-- Le Comptable enregistre la dépense après l'achat.
-- Une dépense réelle peut être liée à sa demande d'origine.
+Le prix unitaire et le montant facturé sont réservés au Comptable.
 
-## 6.8 Stock
+La transition entre statuts est centralisée dans ExpeditionService.
 
-Le stock disponible est calculé automatiquement :
+## 6.7 Paiements clients
 
-`Stock disponible = Total des récoltes valides - Total des expéditions confirmées non annulées`
+- Un paiement est toujours lié à une expédition.
+- Plusieurs paiements partiels sont autorisés.
+- Le total net des paiements ne peut pas dépasser le montant dû.
+- Les paiements historiques ne sont pas modifiés ou supprimés pour corriger une erreur.
+- Les remboursements et annulations financières sont enregistrés comme opérations distinctes.
+- Le solde est calculé à partir des opérations financières valides.
+
+Une transaction doit protéger le contrôle du solde contre les paiements simultanés.
+
+## 6.8 Dépenses
+
+Deux éléments métier distincts sont utilisés.
+
+*Demande de dépense :*
+
+- Créée par le Responsable.
+- Envoyée au Comptable.
+- Acceptée ou refusée avec commentaire.
+- Conservée dans l'historique.
+
+*Dépense réelle :*
+
+- Enregistrée par le Comptable après réalisation de l'achat.
+- Contient le montant réellement payé.
+- Peut être liée à la demande initiale.
+- Conserve son justificatif.
+
+L'acceptation d'une demande ne crée pas automatiquement une dépense réelle.
+
+## 6.9 Stock
 
 Le stock est calculé par ferme.
 
-Il n'existe pas de saisie manuelle du stock disponible.
+text
+STOCK DISPONIBLE =
+TOTAL DES RÉCOLTES VALIDES
+-
+TOTAL DES EXPÉDITIONS CONFIRMÉES NON ANNULÉES
 
-## 6.9 Clients
+
+Principes :
+
+- Le stock n'est jamais saisi manuellement.
+- Une récolte valide augmente le stock.
+- Une expédition confirmée diminue le stock.
+- Une expédition annulée restaure le stock.
+- Les modifications d'une opération confirmée passent par le processus de révision.
+- Le stock ne peut jamais être négatif.
+
+La vue V_STOCK_FERME fournit le résultat calculé.
+
+La vue ne remplace pas les contrôles transactionnels réalisés pendant les opérations.
+
+## 6.10 Clients
 
 - Les clients sont partagés entre Responsable et Comptable.
-- Ils peuvent être ajoutés, consultés, modifiés, recherchés et désactivés.
-- Un client lié à des opérations historiques ne doit pas être supprimé physiquement.
+- Le Responsable gère les informations opérationnelles.
+- Le Comptable gère les informations financières.
+- Les clients liés à des opérations historiques ne sont pas supprimés physiquement.
+- Un client peut être désactivé.
+- Les informations financières ne sont pas accessibles au Responsable.
 
-## 6.10 Documents, notifications et historique
+## 6.11 Documents et notifications
 
-- Les documents peuvent être liés à une opération métier.
-- Les notifications informent les utilisateurs des actions nécessaires.
-- Le journal d'action conserve les opérations importantes.
-- Les opérations historiques doivent rester consultables.
-- Les journaux ne doivent pas être modifiables par les utilisateurs ordinaires.
+Les documents peuvent être associés aux opérations concernées :
+
+- Expéditions.
+- Fiches de présence.
+- Demandes de correction.
+- Demandes de dépenses.
+- Dépenses réelles.
+
+Les fichiers sont stockés dans un emplacement contrôlé, distinct du code source.
+
+La base conserve leurs métadonnées et leur référence de stockage.
+
+Les notifications sont générées à la suite d'événements métier :
+
+- Nouvelle expédition à confirmer.
+- Expédition refusée.
+- Fiche de présence transmise.
+- Correction demandée.
+- Demande de dépense acceptée ou refusée.
+- Autres événements nécessaires.
+
+Les notifications sont destinées aux utilisateurs concernés.
+
+## 6.12 Journalisation
+
+Les opérations importantes sont enregistrées dans JOURNAL_ACTION.
+
+Informations minimales :
+
+- Utilisateur.
+- Action.
+- Module.
+- Entité concernée.
+- Identifiant de l'entité.
+- Date et heure.
+- Anciennes valeurs et nouvelles valeurs lorsque nécessaire.
+- Résultat.
+- Motif lorsque nécessaire.
+
+Le journal est consultable, mais ses anciennes entrées ne peuvent pas être modifiées par les utilisateurs ordinaires.
+
+Les événements de sécurité sont également journalisés, notamment :
+
+- Connexions réussies.
+- Tentatives de connexion échouées.
+- Tentatives d'accès à un espace non autorisé.
+- Réinitialisations de mots de passe.
+- Modifications du code Administrateur.
+- Désactivations de comptes.
+
+Aucune valeur de mot de passe ou de code alphanumérique ne doit apparaître dans le journal.
 
 ---
 
 # 7. Conception de la base de données
 
-La base de données est centralisée dans PostgreSQL.
+PostgreSQL est la base de données centrale d'ORANGIA.
 
-Elle est conçue autour de 22 tables métier et d'une vue calculée pour le stock.
+Le modèle métier cible présenté comprend 22 tables et une vue calculée.
 
-## 7.1 Tables principales
+## 7.1 Tables métier
 
-| N° | Table | Rôle |
-|---:|---|---|
-| 1 | ROLE | Rôles des utilisateurs |
-| 2 | UTILISATEUR | Comptes de connexion |
+| N° | Table | Responsabilité |
+|---|---|---|
+| 1 | ROLE | Rôles prédéfinis |
+| 2 | UTILISATEUR | Comptes et authentification |
 | 3 | FERME | Exploitations agricoles |
 | 4 | PARCELLE | Parcelles des fermes |
 | 5 | OUVRIER | Dossiers du personnel |
 | 6 | AFFECTATION_OUVRIER | Historique des affectations |
 | 7 | TARIF_OUVRIER | Historique des tarifs |
-| 8 | FICHE_PRESENCE | Fiches de présence transmises |
-| 9 | PRESENCE | Présences quotidiennes |
-| 10 | DEMANDE_CORRECTION | Corrections de présence |
+| 8 | FICHE_PRESENCE | Fiches quotidiennes |
+| 9 | PRESENCE | Présences individuelles |
+| 10 | DEMANDE_CORRECTION | Demandes de correction |
 | 11 | SALAIRE | Salaires calculés |
 | 12 | PAIEMENT_SALAIRE | Paiements des salaires |
-| 13 | RECOLTE | Récoltes enregistrées |
+| 13 | RECOLTE | Opérations de récolte |
 | 14 | CLIENT | Clients |
 | 15 | EXPEDITION | Expéditions |
-| 16 | PAIEMENT_EXPEDITION | Paiements clients |
+| 16 | PAIEMENT_EXPEDITION | Paiements et remboursements |
 | 17 | DEMANDE_DEPENSE | Demandes de dépenses |
 | 18 | DEPENSE | Dépenses réellement effectuées |
-| 19 | DOCUMENT | Documents et pièces jointes |
+| 19 | DOCUMENT | Métadonnées des documents |
 | 20 | NOTIFICATION | Notifications |
-| 21 | JOURNAL_ACTION | Historique des actions |
-| 22 | PARAMETRE_SYSTEME | Paramètres de l'application |
+| 21 | JOURNAL_ACTION | Traçabilité |
+| 22 | PARAMETRE_SYSTEME | Paramètres applicatifs |
 
 ## 7.2 Vue calculée
 
-`V_STOCK_FERME`
+V_STOCK_FERME
 
-Cette vue calcule le stock disponible par ferme à partir des récoltes valides et des expéditions confirmées non annulées.
+Elle calcule le stock disponible pour chaque ferme.
 
-Elle ne remplace pas les tables métier : elle fournit une projection calculée.
+Elle utilise les récoltes valides et les quantités physiques des expéditions confirmées non annulées.
 
-## 7.3 Tables et éléments historiques éventuels
+## 7.3 Relations principales
 
-Les éléments suivants ne font pas partie des 22 tables du modèle cible :
+- ROLE 1,N UTILISATEUR.
+- FERME 1,N PARCELLE.
+- FERME 1,N AFFECTATION_OUVRIER.
+- OUVRIER 1,N AFFECTATION_OUVRIER.
+- OUVRIER 1,N TARIF_OUVRIER.
+- FERME 1,N FICHE_PRESENCE.
+- FICHE_PRESENCE 1,N PRESENCE.
+- OUVRIER 1,N PRESENCE.
+- PRESENCE 1,N DEMANDE_CORRECTION selon le modèle de corrections retenu.
+- OUVRIER 1,N SALAIRE.
+- SALAIRE 1,N PAIEMENT_SALAIRE.
+- PARCELLE 1,N RECOLTE.
+- FERME 1,N EXPEDITION.
+- CLIENT 1,N EXPEDITION.
+- EXPEDITION 1,N PAIEMENT_EXPEDITION.
+- FERME 1,N DEMANDE_DEPENSE.
+- FERME 1,N DEPENSE.
 
-- EXPEDITION_RECOLTE
-- PRODUIT_STOCK
-- MOUVEMENT_STOCK
-- UTILISATEUR_FERME
-- PERMISSION
-- ROLE_PERMISSION
+Les relations doivent être matérialisées par des clés étrangères et des contraintes adaptées.
 
-Ils doivent être audités avant toute décision de conservation ou de migration. Ils ne doivent pas être supprimés automatiquement.
+## 7.4 Affectation des utilisateurs aux fermes
 
-Le rôle est représenté en Java par une classe `Role` contenant des constantes String. Les autorisations de navigation sont définies statiquement dans l'application. La table `ROLE_PERMISSION` n'est pas utilisée dans le fonctionnement actuel prévu.
+Le modèle retenu est volontairement simple :
+
+- Un Responsable possède une seule ferme active.
+- RH possède un accès global.
+- Comptable possède un accès global.
+- Administrateur possède un accès global.
+
+L'identifiant de la ferme du Responsable peut être stocké dans UTILISATEUR.ferme_id.
+
+Une table UTILISATEUR_FERME n'est pas nécessaire dans ce modèle.
+
+Si les décisions métier changent ultérieurement pour permettre plusieurs affectations par utilisateur, une relation intermédiaire devra être ajoutée dans une migration dédiée.
+
+## 7.5 Informations d'authentification
+
+La table UTILISATEUR conserve les informations nécessaires à l'authentification.
+
+Champs fonctionnels :
+
+| Champ | Responsabilité |
+|---|---|
+| id | Identifiant du compte |
+| identifiant | Identifiant unique de connexion |
+| mot_de_passe_hash | Hash du mot de passe |
+| code_acces_hash | Hash du code alphanumérique Administrateur |
+| role_id | Rôle associé au compte |
+| ferme_id | Ferme associée au Responsable |
+| actif | Statut du compte |
+
+Les noms définitifs des colonnes doivent rester cohérents avec le schéma PostgreSQL réellement existant.
+
+Règles :
+
+- identifiant est unique.
+- mot_de_passe_hash est obligatoire.
+- code_acces_hash est obligatoire pour le compte Administrateur.
+- code_acces_hash reste NULL pour les autres rôles.
+- Le code original n'est jamais stocké.
+- Le code doit être vérifié par le Service d'authentification.
+- Le changement du code doit être contrôlé et journalisé.
+- Le hash du mot de passe ne peut jamais être remplacé par une valeur en clair.
+
+L'ajout de code_acces_hash ne nécessite pas la création d'une nouvelle table.
+
+## 7.6 Tables non incluses dans le modèle métier cible
+
+Les tables suivantes ne sont pas nécessaires au fonctionnement minimal retenu :
+
+- EXPEDITION_RECOLTE.
+- PRODUIT_STOCK.
+- MOUVEMENT_STOCK.
+- UTILISATEUR_FERME.
+- PERMISSION.
+- ROLE_PERMISSION.
+
+Cependant, leur présence dans une base existante doit être auditée.
+
+Aucune de ces tables ne doit être supprimée automatiquement.
+
+EXPEDITION_RECOLTE pourra être étudiée si la traçabilité des lots de récolte devient une exigence.
+
+UTILISATEUR_FERME pourra être étudiée si plusieurs affectations par utilisateur deviennent nécessaires.
+
+PRODUIT_STOCK et MOUVEMENT_STOCK ne sont pas nécessaires tant que le périmètre reste limité au stock global d'oranges calculé.
+
+## 7.7 Contraintes générales
+
+La base doit protéger les données à l'aide de :
+
+- PRIMARY KEY.
+- FOREIGN KEY.
+- NOT NULL.
+- UNIQUE.
+- CHECK.
+- Index adaptés.
+- Transactions.
+
+Exemples :
+
+- Quantités strictement positives.
+- Montants financiers non négatifs.
+- Un identifiant de connexion unique.
+- Une référence de ferme unique.
+- Une affectation active unique par ouvrier.
+- Une fiche active unique par ferme et par date.
+- Un paiement lié à une expédition existante.
+
+Les suppressions physiques sont interdites pour les opérations historiques importantes.
 
 ---
 
-# 8. Structure globale du projet — MVC
+# 8. Structure globale du projet
 
-La structure ci-dessous représente l'organisation cible du code source.
+La structure cible conserve le package racine ma.orangia.
 
-```text
+text
 orangia/
 │
 ├── pom.xml
@@ -553,31 +1026,161 @@ orangia/
 │   ├── architecture.md
 │   ├── cahier-des-charges.md
 │   ├── conception-bdd.md
-│   ├── diagrammes/
-│   │   ├── diagramme-classes.png
-│   │   ├── diagramme-use-case.png
-│   │   ├── diagramme-sequence.png
-│   │   └── diagramme-mcd.png
-│   └── rapports/
+│   ├── role&permission.md
+│   ├── usecases.md
+│   ├── planning.md
+│   └── diagrammes/
 │
 ├── database/
 │   ├── migrations/
-│   │   ├── 001_initial_schema.sql
-│   │   ├── 002_authentication.sql
-│   │   ├── 003_farms_and_parcels.sql
-│   │   ├── 004_clients_and_shipments.sql
-│   │   ├── 005_human_resources.sql
-│   │   ├── 006_harvests.sql
-│   │   └── 007_expenses_and_final_constraints.sql
-│   │
 │   ├── views/
 │   │   └── v_stock_ferme.sql
-│   │
 │   ├── seeds/
-│   │   ├── roles.sql
-│   │   └── initial_data.sql
-│   │
 │   └── README.md
+│
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── ma/
+│   │   │       └── orangia/
+│   │   │           ├── MainApp.java
+│   │           ├── config/
+│   │           ├── navigation/
+│   │           ├── model/
+│   │           ├── dao/
+│   │           │   └── impl/
+│   │           ├── service/
+│   │           ├── controller/
+│   │           │   ├── auth/
+│   │           │   ├── admin/
+│   │           │   ├── responsable/
+│   │           │   ├── rh/
+│   │           │   ├── comptable/
+│   │           │   └── common/
+│   │           ├── security/
+│   │           ├── validation/
+│   │           ├── util/
+│   │           └── exception/
+│   │
+│   └── resources/
+│       ├── fxml/
+│       │   ├── auth/
+│       │   ├── admin/
+│       │   ├── responsable/
+│       │   ├── rh/
+│       │   ├── comptable/
+│       │   └── common/
+│       ├── css/
+│       ├── images/
+│       └── reports/
+│
+└── src/test/
+    └── java/
+        └── ma/
+            └── orangia/
+                ├── security/
+                ├── service/
+                ├── validation/
+                └── integration/
+
+
+Cette structure est une organisation cible.
+
+Les fichiers existants doivent être conservés et réorganisés uniquement si une migration de packages est réellement nécessaire.
+
+## 8.1 Responsabilité des packages
+
+- config/ : configuration générale et connexion.
+- navigation/ : navigation entre les interfaces.
+- model/ : objets métier.
+- dao/ : interfaces d'accès aux données.
+- dao/impl/ : implémentations JDBC.
+- service/ : règles métier.
+- controller/ : contrôleurs JavaFX.
+- security/ : authentification et autorisations.
+- validation/ : validations réutilisables.
+- util/ : outils communs.
+- exception/ : exceptions applicatives.
+
+## 8.2 Organisation de l'authentification
+
+Le package security/ contient les composants nécessaires à la protection des accès.
+
+text
+security/
+│
+├── AuthService.java
+├── PasswordHasher.java
+├── AdminCodeHasher.java
+├── SessionManager.java
+├── AccessControl.java
+└── RoleAccess.java
+
+
+Responsabilités :
+
+- AuthService : authentification des quatre rôles.
+- PasswordHasher : hachage et vérification des mots de passe.
+- AdminCodeHasher : hachage et vérification du code alphanumérique Administrateur.
+- SessionManager : création, consultation et invalidation des sessions.
+- AccessControl : contrôle des autorisations.
+- RoleAccess : définition des accès selon les rôles.
+
+Les Controllers d'authentification se trouvent dans controller/auth/.
+
+text
+auth/
+│
+├── WorkspaceSelectionController.java
+├── LoginController.java
+└── AdminLoginController.java
+
+
+Les interfaces FXML correspondantes se trouvent dans resources/fxml/auth/.
+
+text
+auth/
+│
+├── workspace-selection.fxml
+├── login.fxml
+└── admin-login.fxml
+
+
+Le formulaire Administrateur est distinct du formulaire des autres utilisateurs.
+
+## 8.3 Règles d'organisation
+
+- Une entité métier est partagée entre les rôles.
+- Les DAO sont centralisés.
+- Les interfaces et implémentations DAO restent dans la même arborescence.
+- Les composants communs sont réutilisés.
+- Les dossiers ne sont créés que selon les besoins.
+- target/ est généré par Maven et ne doit pas être versionné.
+- Les fichiers de configuration contenant des secrets ne doivent pas être versionnés.
+- Les composants d'authentification ne doivent pas être dupliqués dans les espaces métier.
+
+---
+### ARCHITECTURE STRUCTURELLE MVC — ORANGIA ###
+
+**Version : 1.0**  
+**Projet : ORANGIA — Application Desktop de Gestion Agricole**  
+**Architecture : MVC + Service + DAO**  
+**Technologies : Java 21, JavaFX, FXML, CSS, PostgreSQL, JDBC, Maven**
+
+## 1. Structure générale du projet
+
+```text
+orangia/
+│
+├── pom.xml
+├── README.md
+├── .gitignore
+│
+├── database/
+│   └── migrations/
+│       ├── V001__create_initial_schema.sql
+│       ├── V002__add_attendance_tables.sql
+│       └── ...
 │
 ├── src/
 │   │
@@ -586,17 +1189,46 @@ orangia/
 │   │   ├── java/
 │   │   │   └── ma/
 │   │   │       └── orangia/
-│   │   │
+│   │   │           │
 │   │   │           ├── MainApp.java
 │   │   │           │
-│   │   │           ├── config/
-│   │   │           │   ├── DatabaseConnection.java
-│   │   │           │   ├── AppConfig.java
-│   │   │           │   └── SessionManager.java
-│   │   │           │
-│   │   │           ├── navigation/
-│   │   │           │   ├── NavigationManager.java
-│   │   │           │   └── Route.java
+│   │   │           ├── controller/
+│   │   │           │   ├── common/
+│   │   │           │   │   ├── WorkspaceController.java
+│   │   │           │   │   ├── LoginController.java
+│   │   │           │   │   └── MainLayoutController.java
+│   │   │           │   │
+│   │   │           │   ├── admin/
+│   │   │           │   │   ├── AdminDashboardController.java
+│   │   │           │   │   ├── UtilisateursController.java
+│   │   │           │   │   ├── FermesController.java
+│   │   │           │   │   ├── ParcellesController.java
+│   │   │           │   │   ├── ParametresController.java
+│   │   │           │   │   └── AuditController.java
+│   │   │           │   │
+│   │   │           │   ├── responsable/
+│   │   │           │   │   ├── ResponsableDashboardController.java
+│   │   │           │   │   ├── RecoltesController.java
+│   │   │           │   │   ├── PresencesController.java
+│   │   │           │   │   ├── DemandesDepensesController.java
+│   │   │           │   │   └── ExpeditionsController.java
+│   │   │           │   │
+│   │   │           │   ├── rh/
+│   │   │           │   │   ├── RHDashboardController.java
+│   │   │           │   │   ├── OuvriersController.java
+│   │   │           │   │   ├── AffectationsController.java
+│   │   │           │   │   ├── ValidationPresencesController.java
+│   │   │           │   │   ├── SalairesController.java
+│   │   │           │   │   └── PaiementsSalairesController.java
+│   │   │           │   │
+│   │   │           │   └── comptable/
+│   │   │           │       ├── ComptableDashboardController.java
+│   │   │           │       ├── ClientsController.java
+│   │   │           │       ├── StockController.java
+│   │   │           │       ├── ConfirmationsExpeditionsController.java
+│   │   │           │       ├── PaiementsExpeditionsController.java
+│   │   │           │       ├── DepensesController.java
+│   │   │           │       └── RapportsFinanciersController.java
 │   │   │           │
 │   │   │           ├── model/
 │   │   │           │   ├── Role.java
@@ -623,51 +1255,19 @@ orangia/
 │   │   │           │   └── ParametreSysteme.java
 │   │   │           │
 │   │   │           ├── dao/
-│   │   │           │   ├── UtilisateurDAO.java
-│   │   │           │   ├── FermeDAO.java
-│   │   │           │   ├── ParcelleDAO.java
-│   │   │           │   ├── OuvrierDAO.java
-│   │   │           │   ├── AffectationOuvrierDAO.java
-│   │   │           │   ├── TarifOuvrierDAO.java
-│   │   │           │   ├── FichePresenceDAO.java
-│   │   │           │   ├── PresenceDAO.java
-│   │   │           │   ├── DemandeCorrectionDAO.java
-│   │   │           │   ├── SalaireDAO.java
-│   │   │           │   ├── PaiementSalaireDAO.java
-│   │   │           │   ├── RecolteDAO.java
-│   │   │           │   ├── ClientDAO.java
-│   │   │           │   ├── ExpeditionDAO.java
-│   │   │           │   ├── PaiementExpeditionDAO.java
-│   │   │           │   ├── DemandeDepenseDAO.java
-│   │   │           │   ├── DepenseDAO.java
-│   │   │           │   ├── DocumentDAO.java
-│   │   │           │   ├── NotificationDAO.java
-│   │   │           │   ├── JournalActionDAO.java
-│   │   │           │   └── ParametreSystemeDAO.java
-│   │   │           │
-│   │   │           ├── dao/
+│   │   │           │   ├── interfaces/
 │   │   │           │   └── impl/
 │   │   │           │       ├── UtilisateurDAOImpl.java
 │   │   │           │       ├── FermeDAOImpl.java
 │   │   │           │       ├── ParcelleDAOImpl.java
 │   │   │           │       ├── OuvrierDAOImpl.java
-│   │   │           │       ├── AffectationOuvrierDAOImpl.java
-│   │   │           │       ├── TarifOuvrierDAOImpl.java
-│   │   │           │       ├── FichePresenceDAOImpl.java
 │   │   │           │       ├── PresenceDAOImpl.java
-│   │   │           │       ├── DemandeCorrectionDAOImpl.java
 │   │   │           │       ├── SalaireDAOImpl.java
-│   │   │           │       ├── PaiementSalaireDAOImpl.java
 │   │   │           │       ├── RecolteDAOImpl.java
 │   │   │           │       ├── ClientDAOImpl.java
 │   │   │           │       ├── ExpeditionDAOImpl.java
-│   │   │           │       ├── PaiementExpeditionDAOImpl.java
-│   │   │           │       ├── DemandeDepenseDAOImpl.java
 │   │   │           │       ├── DepenseDAOImpl.java
-│   │   │           │       ├── DocumentDAOImpl.java
-│   │   │           │       ├── NotificationDAOImpl.java
-│   │   │           │       ├── JournalActionDAOImpl.java
-│   │   │           │       └── ParametreSystemeDAOImpl.java
+│   │   │           │       └── ...
 │   │   │           │
 │   │   │           ├── service/
 │   │   │           │   ├── AuthService.java
@@ -675,550 +1275,798 @@ orangia/
 │   │   │           │   ├── FermeService.java
 │   │   │           │   ├── ParcelleService.java
 │   │   │           │   ├── OuvrierService.java
-│   │   │           │   ├── AffectationOuvrierService.java
-│   │   │           │   ├── TarifOuvrierService.java
+│   │   │           │   ├── AffectationService.java
 │   │   │           │   ├── PresenceService.java
-│   │   │           │   ├── FichePresenceService.java
-│   │   │           │   ├── DemandeCorrectionService.java
 │   │   │           │   ├── SalaireService.java
 │   │   │           │   ├── RecolteService.java
 │   │   │           │   ├── StockService.java
 │   │   │           │   ├── ClientService.java
 │   │   │           │   ├── ExpeditionService.java
-│   │   │           │   ├── PaiementExpeditionService.java
-│   │   │           │   ├── DemandeDepenseService.java
+│   │   │           │   ├── PaiementService.java
 │   │   │           │   ├── DepenseService.java
-│   │   │           │   ├── DocumentService.java
 │   │   │           │   ├── NotificationService.java
-│   │   │           │   ├── JournalActionService.java
 │   │   │           │   ├── RapportService.java
-│   │   │           │   ├── BackupService.java
-│   │   │           │   └── ParametreSystemeService.java
+│   │   │           │   └── AuditService.java
 │   │   │           │
-│   │   │           ├── controller/
-│   │   │           │   │
-│   │   │           │   ├── auth/
-│   │   │           │   │   ├── WorkspaceSelectionController.java
-│   │   │           │   │   └── LoginController.java
-│   │   │           │   │
-│   │   │           │   ├── admin/
-│   │   │           │   │   ├── AdminDashboardController.java
-│   │   │           │   │   ├── UtilisateursController.java
-│   │   │           │   │   ├── FermesController.java
-│   │   │           │   │   ├── ParcellesController.java
-│   │   │           │   │   ├── SupervisionController.java
-│   │   │           │   │   ├── HistoriqueAdminController.java
-│   │   │           │   │   └── ParametresSystemeController.java
-│   │   │           │   │
-│   │   │           │   ├── responsable/
-│   │   │           │   │   ├── ResponsableDashboardController.java
-│   │   │           │   │   ├── RecoltesController.java
-│   │   │           │   │   ├── ExpeditionsController.java
-│   │   │           │   │   ├── PresencesResponsableController.java
-│   │   │           │   │   ├── DemandesDepenseController.java
-│   │   │           │   │   └── HistoriqueResponsableController.java
-│   │   │           │   │
-│   │   │           │   ├── rh/
-│   │   │           │   │   ├── RHDashboardController.java
-│   │   │           │   │   ├── GestionPersonnelController.java
-│   │   │           │   │   ├── AffectationsController.java
-│   │   │           │   │   ├── PresencesRHController.java
-│   │   │           │   │   ├── CorrectionsController.java
-│   │   │           │   │   ├── SalairesController.java
-│   │   │           │   │   └── RapportsRHController.java
-│   │   │           │   │
-│   │   │           │   ├── comptable/
-│   │   │           │   │   ├── ComptableDashboardController.java
-│   │   │           │   │   ├── RecoltesStockController.java
-│   │   │           │   │   ├── ClientsController.java
-│   │   │           │   │   ├── ExpeditionsComptableController.java
-│   │   │           │   │   ├── PaiementsExpeditionController.java
-│   │   │           │   │   ├── DepensesController.java
-│   │   │           │   │   ├── DemandesDepensesController.java
-│   │   │           │   │   └── RapportsComptableController.java
-│   │   │           │   │
-│   │   │           │   └── common/
-│   │   │           │       ├── ProfileController.java
-│   │   │           │       ├── NotificationsController.java
-│   │   │           │       └── DocumentsController.java
+│   │   │           ├── database/
+│   │   │           │   ├── DatabaseConnection.java
+│   │   │           │   └── DatabaseConfig.java
 │   │   │           │
 │   │   │           ├── security/
 │   │   │           │   ├── PasswordHasher.java
-│   │   │           │   ├── AccessControl.java
-│   │   │           │   └── RoleAccess.java
+│   │   │           │   ├── SessionManager.java
+│   │   │           │   ├── AuthorizationService.java
+│   │   │           │   └── PermissionChecker.java
 │   │   │           │
 │   │   │           ├── validation/
-│   │   │           │   ├── UtilisateurValidator.java
-│   │   │           │   ├── FermeValidator.java
-│   │   │           │   ├── ParcelleValidator.java
-│   │   │           │   ├── OuvrierValidator.java
-│   │   │           │   ├── PresenceValidator.java
-│   │   │           │   ├── RecolteValidator.java
-│   │   │           │   ├── ClientValidator.java
-│   │   │           │   ├── ExpeditionValidator.java
-│   │   │           │   └── DepenseValidator.java
+│   │   │           │   ├── InputValidator.java
+│   │   │           │   ├── LoginValidator.java
+│   │   │           │   └── FormValidator.java
 │   │   │           │
-│   │   │           ├── util/
-│   │   │           │   ├── AlertUtil.java
-│   │   │           │   ├── DateUtil.java
-│   │   │           │   ├── CurrencyUtil.java
-│   │   │           │   ├── FileUtil.java
-│   │   │           │   └── PdfUtil.java
+│   │   │           ├── exception/
+│   │   │           │   ├── DatabaseException.java
+│   │   │           │   ├── BusinessException.java
+│   │   │           │   └── AuthenticationException.java
 │   │   │           │
-│   │   │           └── exception/
-│   │   │               ├── ValidationException.java
-│   │   │               ├── BusinessException.java
-│   │   │               └── DataAccessException.java
+│   │   │           └── util/
+│   │   │               ├── DateUtils.java
+│   │   │               ├── CurrencyUtils.java
+│   │   │               ├── PdfGenerator.java
+│   │   │               └── NavigationManager.java
 │   │   │
 │   │   └── resources/
-│   │       │
-│   │       ├── fxml/
-│   │       │   │
-│   │       │   ├── auth/
-│   │       │   │   ├── WorkspaceSelectionView.fxml
-│   │       │   │   └── LoginView.fxml
-│   │       │   │
-│   │       │   ├── admin/
-│   │       │   │   ├── AdminDashboardView.fxml
-│   │       │   │   ├── UtilisateursView.fxml
-│   │       │   │   ├── FermesView.fxml
-│   │       │   │   ├── ParcellesView.fxml
-│   │       │   │   ├── SupervisionView.fxml
-│   │       │   │   ├── HistoriqueAdminView.fxml
-│   │       │   │   └── ParametresSystemeView.fxml
-│   │       │   │
-│   │       │   ├── responsable/
-│   │       │   │   ├── ResponsableDashboardView.fxml
-│   │       │   │   ├── RecoltesView.fxml
-│   │       │   │   ├── ExpeditionsView.fxml
-│   │       │   │   ├── PresencesResponsableView.fxml
-│   │       │   │   ├── DemandesDepenseView.fxml
-│   │       │   │   └── HistoriqueResponsableView.fxml
-│   │       │   │
-│   │       │   ├── rh/
-│   │       │   │   ├── RHDashboardView.fxml
-│   │       │   │   ├── GestionPersonnelView.fxml
-│   │       │   │   ├── AffectationsView.fxml
-│   │       │   │   ├── PresencesRHView.fxml
-│   │       │   │   ├── CorrectionsView.fxml
-│   │       │   │   ├── SalairesView.fxml
-│   │       │   │   └── RapportsRHView.fxml
-│   │       │   │
-│   │       │   ├── comptable/
-│   │       │   │   ├── ComptableDashboardView.fxml
-│   │       │   │   ├── RecoltesStockView.fxml
-│   │       │   │   ├── ClientsView.fxml
-│   │       │   │   ├── ExpeditionsComptableView.fxml
-│   │       │   │   ├── PaiementsExpeditionView.fxml
-│   │       │   │   ├── DepensesView.fxml
-│   │       │   │   ├── DemandesDepensesView.fxml
-│   │       │   │   └── RapportsComptableView.fxml
-│   │       │   │
-│   │       │   └── common/
-│   │       │       ├── ProfileView.fxml
-│   │       │       ├── NotificationsView.fxml
-│   │       │       ├── DocumentsView.fxml
-│   │       │       └── components/
-│   │       │           ├── Sidebar.fxml
-│   │       │           ├── Header.fxml
-│   │       │           ├── ConfirmDialog.fxml
-│   │       │           └── EmptyState.fxml
-│   │       │
-│   │       ├── css/
-│   │       │   ├── global.css
-│   │       │   ├── theme.css
-│   │       │   ├── auth.css
-│   │       │   ├── dashboard.css
-│   │       │   ├── tables.css
-│   │       │   ├── forms.css
-│   │       │   ├── dialogs.css
-│   │       │   └── components/
-│   │       │       ├── sidebar.css
-│   │       │       ├── header.css
-│   │       │       └── buttons.css
-│   │       │
-│   │       ├── images/
-│   │       │   ├── logo/
-│   │       │   ├── icons/
-│   │       │   └── backgrounds/
-│   │       │
-│   │       └── reports/
+│   │       └── ma/
+│   │           └── orangia/
+│   │               │
+│   │               ├── view/
+│   │               │   ├── common/
+│   │               │   │   ├── workspace.fxml
+│   │               │   │   ├── login.fxml
+│   │               │   │   └── main-layout.fxml
+│   │               │   │
+│   │               │   ├── admin/
+│   │               │   │   ├── dashboard.fxml
+│   │               │   │   ├── utilisateurs.fxml
+│   │               │   │   ├── fermes.fxml
+│   │               │   │   ├── parcelles.fxml
+│   │               │   │   └── parametres.fxml
+│   │               │   │
+│   │               │   ├── responsable/
+│   │               │   │   ├── dashboard.fxml
+│   │               │   │   ├── recoltes.fxml
+│   │               │   │   ├── presences.fxml
+│   │               │   │   ├── demandes-depenses.fxml
+│   │               │   │   └── expeditions.fxml
+│   │               │   │
+│   │               │   ├── rh/
+│   │               │   │   ├── dashboard.fxml
+│   │               │   │   ├── ouvriers.fxml
+│   │               │   │   ├── affectations.fxml
+│   │               │   │   ├── presences.fxml
+│   │               │   │   └── salaires.fxml
+│   │               │   │
+│   │               │   └── comptable/
+│   │               │       ├── dashboard.fxml
+│   │               │       ├── clients.fxml
+│   │               │       ├── stock.fxml
+│   │               │       ├── expeditions.fxml
+│   │               │       ├── paiements.fxml
+│   │               │       └── depenses.fxml
+│   │               │
+│   │               ├── css/
+│   │               │   ├── global.css
+│   │               │   ├── login.css
+│   │               │   ├── dashboard.css
+│   │               │   └── components.css
+│   │               │
+│   │               ├── images/
+│   │               │   ├── logo/
+│   │               │   ├── icons/
+│   │               │   └── backgrounds/
+│   │               │
+│   │               └── fonts/
 │   │
 │   └── test/
 │       └── java/
 │           └── ma/
 │               └── orangia/
-│                   ├── security/
-│                   │   └── PasswordHasherTest.java
 │                   ├── service/
-│                   │   ├── AuthServiceTest.java
-│                   │   ├── FermeServiceTest.java
-│                   │   ├── OuvrierServiceTest.java
-│                   │   ├── PresenceServiceTest.java
-│                   │   ├── RecolteServiceTest.java
-│                   │   ├── ExpeditionServiceTest.java
-│                   │   ├── SalaireServiceTest.java
-│                   │   └── DepenseServiceTest.java
-│                   ├── validation/
-│                   │   ├── FermeValidatorTest.java
-│                   │   ├── ParcelleValidatorTest.java
-│                   │   ├── OuvrierValidatorTest.java
-│                   │   ├── PresenceValidatorTest.java
-│                   │   ├── RecolteValidatorTest.java
-│                   │   ├── ClientValidatorTest.java
-│                   │   └── ExpeditionValidatorTest.java
-│                   └── integration/
-│                       ├── DatabaseConnectionTest.java
-│                       ├── DatabaseCrudTest.java
-│                       └── FxmlLoadingTest.java
+│                   ├── dao/
+│                   ├── security/
+│                   └── validation/
 │
-└── target/
+└── docs/
+    ├── architecture.md
+    ├── role-permission.md
+    ├── usecases.md
+    └── database.md
 ```
 
-**Remarques sur cette arborescence :**
+## 2. Rôle de chaque couche
 
-- Les interfaces FXML ont leurs Controllers correspondants.
-- Les classes DAO sont séparées de leurs implémentations JDBC.
-- Les Services contiennent les règles métier.
-- Les fichiers de tests suivent les couches et fonctionnalités.
-- `target/` est généré par Maven et ne doit pas être versionné.
-- Les dossiers vides peuvent être conservés comme emplacements réservés, sans créer artificiellement toutes les classes.
-- Les noms exacts peuvent être ajustés lors de l'implémentation, mais toute modification doit rester cohérente entre les packages, les fichiers FXML et les Controllers.
+| Couche | Responsabilité |
+|---|---|
+| Model | Représenter les données et les objets métier |
+| View | Afficher les interfaces JavaFX avec FXML |
+| Controller | Recevoir les actions de l'utilisateur et gérer l'interface |
+| Service | Appliquer les règles métier et gérer les opérations |
+| DAO | Communiquer avec PostgreSQL via JDBC |
+| Database | Gérer la connexion à la base de données |
+| Security | Authentification, sessions et autorisations |
+| Validation | Vérifier les données saisies |
+| Util | Fonctions techniques réutilisables |
 
----
+## 3. Règle de communication entre les couches
 
-# 9. Organisation détaillée des fonctionnalités par espace
+```text
+Utilisateur
+    │
+    ▼
+View (FXML)
+    │
+    ▼
+Controller
+    │
+    ▼
+Service
+    │
+    ▼
+DAO
+    │
+    ▼
+PostgreSQL
+```
 
-## 9.1 Espace Administrateur
+Le retour des données suit le chemin inverse.
 
-| Fonctionnalité | Controller | View |
+**Exemple : ajouter un ouvrier**
+
+1. `ouvriers.fxml` affiche le formulaire.
+2. `OuvriersController.java` récupère les champs.
+3. `OuvrierService.java` vérifie les règles métier.
+4. `OuvrierDAOImpl.java` exécute la requête SQL.
+5. PostgreSQL enregistre l'ouvrier.
+6. Le Controller actualise l'interface.
+
+## 4. Règles obligatoires de développement
+
+1. Aucun SQL dans les Controllers.
+2. Aucune règle métier importante dans les Controllers.
+3. Les Services sont responsables des règles métier.
+4. Les DAO sont responsables des requêtes SQL.
+5. Les Views contiennent uniquement la structure graphique.
+6. Les permissions sont vérifiées côté Service, pas uniquement en cachant les boutons.
+7. Les transactions JDBC sont gérées au niveau Service lorsqu'une opération implique plusieurs requêtes.
+8. Les mots de passe ne sont jamais enregistrés en clair.
+9. Les fichiers FXML doivent être associés à leurs Controllers.
+10. Les tests doivent couvrir les règles métier et les opérations sensibles.
+
+## 5. Convention de nommage
+
+| Élément | Convention | Exemple |
 |---|---|---|
-| Tableau de bord | AdminDashboardController | AdminDashboardView.fxml |
-| Utilisateurs et espaces | UtilisateursController | UtilisateursView.fxml |
-| Fermes | FermesController | FermesView.fxml |
-| Parcelles | ParcellesController | ParcellesView.fxml |
-| Supervision globale | SupervisionController | SupervisionView.fxml |
-| Historique et rapports | HistoriqueAdminController | HistoriqueAdminView.fxml |
-| Paramètres système | ParametresSystemeController | ParametresSystemeView.fxml |
+| Classes Java | PascalCase | `OuvrierService` |
+| Méthodes | camelCase | `ajouterOuvrier()` |
+| Variables | camelCase | `nomOuvrier` |
+| Interfaces DAO | Nom + DAO | `OuvrierDAO` |
+| Implémentations DAO | Nom + DAO + Impl | `OuvrierDAOImpl` |
+| Fichiers FXML | kebab-case | `liste-ouvriers.fxml` |
+| Fichiers CSS | kebab-case | `dashboard.css` |
 
-Le menu principal comporte exactement six entrées :
-1. Tableau de bord
-2. Utilisateurs & espaces
-3. Fermes & parcelles
-4. Supervision globale
-5. Historique & rapports
-6. Paramètres système
+## 6. Remarque importante
 
-Les éléments Profil, Notifications et Déconnexion sont accessibles dans les éléments communs de l'interface.
+Cette structure représente l'organisation cible. Les fichiers ne doivent pas tous être créés immédiatement : chaque membre crée les packages et classes nécessaires à sa tâche, puis les intègre progressivement.
 
-## 9.2 Espace Responsable
+Avant toute création ou modification dans le projet existant, vérifier le package racine réellement utilisé dans le code et le `pom.xml`. Ne pas effectuer de renommage global sans audit préalable.
 
-| Fonctionnalité | Controller | View |
-|---|---|---|
-| Tableau de bord | ResponsableDashboardController | ResponsableDashboardView.fxml |
-| Récoltes | RecoltesController | RecoltesView.fxml |
-| Expéditions | ExpeditionsController | ExpeditionsView.fxml |
-| Présences et demandes | PresencesResponsableController | PresencesResponsableView.fxml |
-| Demandes de dépenses | DemandesDepenseController | DemandesDepenseView.fxml |
-| Historique | HistoriqueResponsableController | HistoriqueResponsableView.fxml |
+# 9. Organisation des fonctionnalités par espace
 
-Les informations clients nécessaires sont intégrées au module Expéditions.
+## 9.1 Administrateur
 
-Le tableau de bord comporte cinq indicateurs :
+Menu principal :
+
+1. Tableau de bord.
+2. Utilisateurs & espaces.
+3. Fermes & parcelles.
+4. Supervision globale.
+5. Historique & rapports.
+6. Paramètres système.
+
+Contrôleurs indicatifs :
+
+| Fonctionnalité | Controller |
+|---|---|
+| Tableau de bord | AdminDashboardController |
+| Utilisateurs | UtilisateursController |
+| Fermes | FermesController |
+| Parcelles | ParcellesController |
+| Supervision | SupervisionController |
+| Historique | HistoriqueAdminController |
+| Paramètres | ParametresSystemeController |
+
+Les utilisateurs, les rôles et les affectations sont gérés dans la même fonctionnalité.
+
+Le Responsable est associé à une ferme unique.
+
+L'authentification Administrateur reste indépendante de ces fonctionnalités et est gérée par les composants communs d'authentification.
+
+## 9.2 Responsable
+
+Menu principal :
+
+1. Tableau de bord.
+2. Récoltes.
+3. Expéditions.
+4. Présences & Demandes.
+5. Historique.
+
+Contrôleurs indicatifs :
+
+| Fonctionnalité | Controller |
+|---|---|
+| Dashboard | ResponsableDashboardController |
+| Récoltes | RecoltesController |
+| Expéditions | ExpeditionsController |
+| Présences | PresencesResponsableController |
+| Demandes | DemandesResponsableController |
+| Historique | HistoriqueResponsableController |
+
+Les demandes de dépenses et les corrections de présence sont intégrées dans Présences & Demandes.
+
+Les cinq indicateurs du Dashboard sont :
+
 - Récoltes aujourd'hui.
 - Expéditions aujourd'hui.
 - Stock disponible.
 - Présences envoyées.
 - Demandes en attente.
 
-Le menu principal conserve les cinq rubriques :
-1. Tableau de bord
-2. Récoltes
-3. Expéditions
-4. Présences & Demandes
-5. Historique
+## 9.3 RH
 
-Les demandes de dépenses sont intégrées dans la rubrique Présences & Demandes, sans ajouter une sixième entrée principale. Le module peut utiliser des onglets internes pour distinguer les deux catégories.
+Menu principal :
 
-## 9.3 Espace RH
+1. Tableau de bord RH.
+2. Gestion du personnel.
+3. Pointage & salaires.
+4. Rapports RH.
 
-| Fonctionnalité | Controller | View |
-|---|---|---|
-| Tableau de bord RH | RHDashboardController | RHDashboardView.fxml |
-| Gestion du personnel | GestionPersonnelController | GestionPersonnelView.fxml |
-| Affectations | AffectationsController | AffectationsView.fxml |
-| Présences | PresencesRHController | PresencesRHView.fxml |
-| Corrections | CorrectionsController | CorrectionsView.fxml |
-| Salaires | SalairesController | SalairesView.fxml |
-| Rapports RH | RapportsRHController | RapportsRHView.fxml |
+Contrôleurs indicatifs :
 
-Les affectations, corrections et salaires sont des sous-fonctionnalités des quatre rubriques RH convenues. Elles ne doivent pas devenir des espaces indépendants.
+| Fonctionnalité | Controller |
+|---|---|
+| Dashboard | RHDashboardController |
+| Personnel | GestionPersonnelController |
+| Présences | PresencesRHController |
+| Salaires | SalairesController |
+| Rapports | RapportsRHController |
 
-## 9.4 Espace Comptable
+Les affectations, transferts, corrections et paiements restent des sous-fonctionnalités.
 
-| Fonctionnalité | Controller | View |
-|---|---|---|
-| Tableau de bord | ComptableDashboardController | ComptableDashboardView.fxml |
-| Récoltes et stock | RecoltesStockController | RecoltesStockView.fxml |
-| Clients | ClientsController | ClientsView.fxml |
-| Expéditions financières | ExpeditionsComptableController | ExpeditionsComptableView.fxml |
-| Paiements | PaiementsExpeditionController | PaiementsExpeditionView.fxml |
-| Dépenses | DepensesController | DepensesView.fxml |
-| Demandes de dépenses | DemandesDepensesController | DemandesDepensesView.fxml |
-| Rapports | RapportsComptableController | RapportsComptableView.fxml |
+## 9.4 Comptable
 
-Les paiements et les demandes de dépenses sont des sous-fonctionnalités des rubriques comptables convenues. Le menu principal conserve cinq rubriques.
+Menu principal :
+
+1. Tableau de bord.
+2. Récoltes & stock.
+3. Clients & suivi commercial.
+4. Dépenses & demandes.
+5. Historique & rapports.
+
+Contrôleurs indicatifs :
+
+| Fonctionnalité | Controller |
+|---|---|
+| Dashboard | ComptableDashboardController |
+| Récoltes et stock | RecoltesStockController |
+| Clients et commercial | ClientsController |
+| Dépenses | DepensesController |
+| Demandes | DemandesDepensesController |
+| Rapports | RapportsComptableController |
+
+Les confirmations et les paiements d'expédition sont intégrés au suivi commercial.
+
+Les noms de classes sont indicatifs et doivent rester cohérents avec les classes déjà présentes.
 
 ---
 
 # 10. Sécurité et contrôle d'accès
 
-La sécurité est appliquée dans les Services et dans les requêtes DAO, pas uniquement dans l'interface.
+## 10.1 Authentification
 
-## 10.1 Gestion des mots de passe
+L'authentification repose sur deux mécanismes selon le rôle.
 
-- Les mots de passe ne sont jamais enregistrés en clair.
-- Utilisation de PBKDF2 pour le hachage.
-- Les mots de passe ne sont jamais affichés dans les journaux.
-- La réinitialisation est réservée à l'Administrateur.
+*Administrateur :*
+
+- Identifiant.
+- Mot de passe.
+- Code alphanumérique.
+
+*Responsable, RH et Comptable :*
+
+- Identifiant.
+- Mot de passe.
+
+Les mots de passe ne sont jamais enregistrés en clair.
+
+Le mécanisme de hachage utilise une fonction adaptée, par exemple PBKDF2-HMAC-SHA256 avec un sel aléatoire et des paramètres de coût conformes aux recommandations de sécurité.
+
+Le code alphanumérique Administrateur est également protégé par un mécanisme de hachage adapté.
+
+Les paramètres de hachage sont versionnés afin de permettre leur évolution.
+
+### 10.1.1 PasswordHasher
+
+La classe PasswordHasher centralise :
+
+- Le hachage des mots de passe.
+- La génération du sel.
+- La vérification des mots de passe.
+- L'évolution des paramètres.
+
+### 10.1.2 AdminCodeHasher
+
+La classe AdminCodeHasher centralise :
+
+- Le hachage du code alphanumérique.
+- La génération du sel.
+- La vérification du code.
+- L'évolution des paramètres de sécurité.
+
+Le code original ne doit jamais être stocké en clair.
+
+### 10.1.3 AuthService
+
+La classe AuthService gère le processus général d'authentification.
+
+Elle doit :
+
+1. Recevoir les informations de connexion.
+2. Identifier le compte.
+3. Vérifier son statut.
+4. Vérifier le rôle.
+5. Vérifier le mot de passe.
+6. Vérifier le code supplémentaire si le compte est Administrateur.
+7. Créer la session en cas de succès.
+8. Journaliser le résultat de la tentative.
+
+L'Administrateur peut réinitialiser un mot de passe, mais ne peut jamais consulter le mot de passe existant.
+
+Il ne peut pas non plus consulter le code alphanumérique existant.
 
 ## 10.2 Contrôle des rôles
 
-La classe `Role.java` contient les constantes des rôles :
+Les classes principales sont :
 
-- ADMINISTRATEUR
-- RESPONSABLE
-- RH
-- COMPTABLE
+- Role.java
+- AccessControl.java
+- RoleAccess.java
 
-La classe `AccessControl.java` contrôle les droits d'accès.
+Les quatre rôles sont prédéfinis.
 
-La classe `RoleAccess.java` définit les menus et fonctionnalités autorisés par rôle.
+Les autorisations sont définies dans le code.
+
+Il n'est pas nécessaire de développer un système dynamique de création de permissions pour cette version.
 
 ## 10.3 Isolation des données
 
-- Le Responsable ne peut accéder qu'à sa propre ferme.
-- RH et Comptable peuvent accéder aux données globales autorisées.
-- Le Responsable ne peut pas récupérer les informations financières des expéditions, même en contournant l'interface.
-- Les DAO doivent proposer des requêtes adaptées aux droits de chaque espace.
+Le Responsable ne peut accéder qu'à sa ferme.
 
-## 10.4 Profil utilisateur
+Les Services déterminent la ferme à partir du contexte de session.
 
-Les utilisateurs peuvent consulter leur profil.
+Ils ne doivent jamais faire confiance à un identifiant de ferme librement transmis par l'interface.
 
-Seul l'Administrateur peut gérer les informations de compte et les rôles des autres utilisateurs. Les autres rôles ne peuvent pas modifier leurs propres informations de compte depuis leur profil.
+Les requêtes DAO appliquent les restrictions nécessaires.
+
+Le Responsable ne doit jamais récupérer les informations financières simplement en contournant un écran.
+
+RH et Comptable disposent d'un accès global selon leurs responsabilités.
+
+## 10.4 Protection de PostgreSQL
+
+L'application ne doit jamais utiliser un compte PostgreSQL superutilisateur.
+
+Les identifiants de connexion doivent être protégés.
+
+Le compte de l'application doit disposer uniquement des privilèges nécessaires.
+
+Pour une connexion distante, la communication doit être protégée par TLS.
+
+Le contrôle d'accès dans Java ne doit pas être présenté comme une protection absolue contre un utilisateur disposant d'un accès direct aux identifiants de la base ou au système de fichiers.
+
+## 10.5 Profil
+
+Chaque utilisateur peut consulter les informations de son profil.
+
+Les actions de modification dépendent du rôle et des autorisations prévues.
+
+La gestion des rôles et des comptes des autres utilisateurs reste réservée à l'Administrateur.
+
+## 10.6 Protection contre les tentatives répétées
+
+Les tentatives répétées de connexion doivent être contrôlées.
+
+Le système peut appliquer :
+
+- Une limitation temporaire des tentatives.
+- Un délai progressif entre les tentatives.
+- Une journalisation des échecs.
+- Une procédure de déblocage contrôlée.
+
+Ces protections doivent être appliquées au processus d'authentification sans divulguer les informations sensibles.
 
 ---
 
 # 11. Gestion des erreurs et validation
 
-Chaque fonctionnalité doit disposer de validations adaptées.
+Les validations métier sont réalisées principalement dans les Services.
 
-Les validations sont effectuées principalement dans les classes `Validator` et les Services.
+Les validations réutilisables peuvent être regroupées dans validation/.
 
 Exemples :
+
 - Champs obligatoires.
-- Formats des données.
-- Valeurs numériques positives.
+- Formats.
+- Valeurs positives.
 - Dates cohérentes.
-- Contrôle des doublons.
-- Contrôle du stock disponible.
-- Contrôle des droits.
-- Vérification des statuts avant modification.
+- Doublons.
+- Stock disponible.
+- Droits d'accès.
+- Statuts.
+- Relations entre les entités.
+- Paiements et soldes.
+- Affectations et périodes.
+- Identifiants de connexion.
+- Longueur et format du code alphanumérique.
+- Vérification des informations d'authentification.
 
-Les messages destinés à l'utilisateur doivent être clairs et compréhensibles.
+Les erreurs techniques ne sont jamais affichées directement à l'utilisateur.
 
-La classe `AlertUtil.java` centralise les alertes et les dialogues standards.
+Les messages affichés doivent être compréhensibles.
+
+La classe AlertUtil peut centraliser les alertes JavaFX.
+
+Les exceptions doivent être journalisées avec les informations techniques nécessaires au diagnostic.
+
+Les mots de passe et codes alphanumériques ne doivent jamais apparaître dans les messages d'erreur ou les logs.
 
 ---
 
-# 12. Tests et qualité du code
-
-Chaque fonctionnalité doit être testée avant son intégration.
+# 12. Tests et qualité
 
 ## 12.1 Tests unitaires
 
-Les tests unitaires couvrent :
-- Les validations.
-- Les règles métier des Services.
-- Les droits d'accès.
-- Les calculs.
-- Les changements de statut.
-- Les cas d'erreur.
+Ils couvrent :
+
+- Authentification.
+- Vérification des mots de passe.
+- Vérification du code alphanumérique Administrateur.
+- Création et invalidation des sessions.
+- Autorisations.
+- Calcul du stock.
+- Validation des récoltes.
+- Transitions d'expédition.
+- Calcul des salaires.
+- Règles de Cabran et Naïb.
+- Paiements partiels.
+- Demandes de dépenses.
+- Corrections de présence.
 
 ## 12.2 Tests d'intégration
 
-Les tests d'intégration couvrent :
-- La connexion PostgreSQL.
-- Les opérations CRUD.
-- Les contraintes de la base de données.
-- Les transactions.
-- Les relations entre tables.
-- Le chargement des interfaces FXML.
+Ils couvrent :
 
-## 12.3 Règles de test
+- Connexion PostgreSQL.
+- Requêtes JDBC.
+- Contraintes.
+- Clés étrangères.
+- Transactions.
+- Chargement FXML.
+- Interactions entre modules.
+- Conservation des historiques.
+- Création des comptes.
+- Authentification Administrateur.
+- Authentification des autres rôles.
 
-- Utiliser une base de test séparée de la base de production.
-- Ne jamais exécuter des tests destructifs sur la base de production.
-- Tester les scénarios normaux et les scénarios d'erreur.
-- Vérifier les effets d'une opération sur les autres fonctionnalités.
-- Exécuter les tests avant chaque Pull Request.
+## 12.3 Tests de sécurité
+
+Vérifier notamment :
+
+- Un Administrateur ne peut pas se connecter sans code alphanumérique.
+- Un Administrateur ne peut pas se connecter avec un code incorrect.
+- Un Administrateur ne peut pas se connecter avec un mot de passe incorrect.
+- Un Responsable ne peut pas accéder à l'espace Administrateur.
+- Un compte inactif ne peut pas se connecter.
+- Un utilisateur ne peut pas contourner les restrictions en modifiant les paramètres d'un écran.
+- Un Responsable ne peut pas consulter une autre ferme.
+- Un Responsable ne peut pas accéder aux paiements.
+- Un Responsable ne peut pas confirmer financièrement une expédition.
+- Un Comptable ne peut pas modifier une récolte.
+- RH ne peut pas modifier les quantités d'une expédition.
+- Le code alphanumérique n'est jamais stocké en clair.
+- Les mots de passe ne sont jamais stockés en clair.
+- Les sessions sont invalidées après déconnexion.
+
+## 12.4 Environnements
+
+Deux environnements sont séparés.
+
+*Production / développement principal*
+
+- PostgreSQL.
+- Port par défaut : 5432.
+- Base : orangia.
+
+*Tests*
+
+- PostgreSQL.
+- Port : 5433.
+- Base recommandée : orangia_test.
+
+Les identifiants de connexion sont configurés séparément.
+
+Les tests ne doivent jamais se connecter à la base principale par défaut.
+
+Les paramètres de test doivent être explicites.
 
 ---
 
-# 13. Gestion des migrations de la base de données
+# 13. Migrations de la base de données
 
-Toutes les modifications de la base doivent être versionnées.
+Toutes les modifications de schéma sont versionnées dans database/migrations/.
 
-Chaque migration doit :
-- Avoir un numéro unique.
-- Avoir un nom explicite.
-- Être documentée.
-- Être testée.
-- Préserver les données historiques.
-- Être réexécutable sans provoquer de doublons lorsque cela est nécessaire.
+Chaque migration possède :
 
-Les noms des fichiers de migration présentés dans l'arborescence représentent le plan cible. Ils doivent être réconciliés avec l'état réel des fichiers et de la base avant exécution.
+- Un numéro unique.
+- Un nom explicite.
+- Une description.
+- Une date.
+- Un objectif.
+- Une procédure de vérification.
 
-**Important :** la présence d'un fichier SQL vide ne signifie pas que la migration a été exécutée. Il faut vérifier séparément le contenu des fichiers et l'état réel de PostgreSQL.
+Une migration appliquée ne doit pas être modifiée arbitrairement.
 
-Aucune migration ne doit supprimer une table ou des données historiques sans validation préalable.
+Les corrections sont réalisées dans de nouvelles migrations.
+
+Un registre technique doit permettre de connaître les migrations réellement exécutées.
+
+Les fichiers SQL et l'état réel de PostgreSQL doivent être vérifiés séparément.
+
+Les migrations existantes doivent être auditées avant toute modification.
+
+Aucune table ou donnée historique ne doit être supprimée sans validation.
+
+Les migrations doivent être testées sur la base de test avant leur application sur la base principale.
+
+## 13.1 Migration liée à l'authentification Administrateur
+
+La modification du système d'authentification nécessite l'ajout du champ suivant à la table UTILISATEUR si celui-ci n'existe pas déjà :
+
+code_acces_hash
+
+Ce champ permet de stocker le hash du code alphanumérique Administrateur.
+
+Règles :
+
+- Le champ est obligatoire pour le compte Administrateur.
+- Le champ reste NULL pour les autres rôles.
+- Le code original ne doit jamais être enregistré.
+- Les données existantes doivent être vérifiées avant l'application de la migration.
+- Le compte Administrateur existant doit recevoir un code sécurisé selon une procédure d'initialisation contrôlée.
+
+Aucune nouvelle table métier n'est nécessaire pour cette modification.
+
+La migration doit être testée sur orangia_test avant son application sur la base principale.
 
 ---
 
 # 14. Organisation du développement en équipe
 
-Le développement suit obligatoirement le principe :
+Le principe obligatoire est :
 
-**ESPACE PAR ESPACE → FONCTIONNALITÉ PAR FONCTIONNALITÉ.**
+*ESPACE PAR ESPACE → FONCTIONNALITÉ PAR FONCTIONNALITÉ.*
 
-Chaque membre prend en charge une fonctionnalité complète de bout en bout :
+Chaque membre prend en charge une fonctionnalité complète.
 
-- Base de données et migrations nécessaires.
-- Model.
-- DAO et implémentation.
-- Service.
-- Controller.
-- FXML.
-- CSS.
-- Tests.
+Une fonctionnalité comprend :
 
-Le travail ne doit pas être divisé en équipes séparées Frontend, Backend et Database.
+1. Base de données si nécessaire.
+2. Model.
+3. DAO.
+4. Service.
+5. Controller.
+6. FXML.
+7. CSS.
+8. Tests.
 
-## 14.1 Répartition des phases
+Le travail n'est pas divisé artificiellement entre équipes Frontend, Backend et Database.
 
-| Phase | Travail |
+Les composants communs sont développés une seule fois et réutilisés.
+
+## 14.1 Phases de développement
+
+| Phase | Contenu |
 |---|---|
-| Phase 0 | Fondations techniques et authentification |
-| Phase 1 | Espace Administrateur |
-| Phase 2 | Espace Responsable |
-| Phase 3 | Espace RH |
-| Phase 4 | Espace Comptable |
-| Phase 5 | Intégration globale et tests finaux |
+| Phase 0 | Fondations, configuration, authentification et sécurité |
+| Phase 1 | Administrateur |
+| Phase 2 | Responsable |
+| Phase 3 | RH |
+| Phase 4 | Comptable |
+| Phase 5 | Intégration et tests finaux |
 
-Les dépendances entre fonctionnalités doivent être respectées.
+Les dépendances métier doivent être respectées.
 
-Une fonctionnalité doit être terminée, testée et intégrée avant de passer à la suivante lorsque cela est nécessaire.
+Les modules partagés ne doivent pas être dupliqués pour chaque espace.
 
-## 14.2 Règle de validation
+La Phase 0 doit notamment finaliser :
 
-Une fonctionnalité est considérée comme terminée lorsque :
+- Configuration Java 21 et JavaFX 21.
+- Configuration PostgreSQL et JDBC.
+- Structure générale du projet.
+- Authentification des quatre rôles.
+- Authentification renforcée Administrateur.
+- Gestion des sessions.
+- Contrôle des rôles.
+- Navigation entre les espaces.
 
-1. Sa structure de base de données est correcte.
-2. Son Model est opérationnel.
-3. Son DAO fonctionne.
-4. Ses règles métier sont implémentées dans le Service.
-5. Son Controller fonctionne.
-6. Son interface FXML est intégrée.
-7. Son CSS est cohérent avec le design global.
-8. Ses tests passent.
-9. Elle ne casse pas les fonctionnalités existantes.
-10. Son code est prêt à être intégré dans la branche principale.
+## 14.2 Validation d'une fonctionnalité
+
+Une fonctionnalité est terminée lorsque :
+
+1. Le modèle de données est cohérent.
+2. Le Model fonctionne.
+3. Le DAO fonctionne.
+4. Le Service applique les règles métier.
+5. Les autorisations sont vérifiées.
+6. Le Controller fonctionne.
+7. La View est intégrée.
+8. Le CSS respecte le design global.
+9. Les tests passent.
+10. La fonctionnalité ne casse pas les autres modules.
+11. Le code est prêt à être intégré dans dev.
 
 ---
 
 # 15. Git et GitHub
 
-GitHub est utilisé pour centraliser le code et suivre le travail de chaque membre.
-
 ## 15.1 Branches
 
-- `main` : version stable du projet.
-- `dev` : branche de développement et d'intégration.
-- Branches `feature/...` : développement des fonctionnalités.
-- Branches `fix/...` : correction des bugs.
+- main : version stable.
+- dev : développement et intégration.
+- feature/... : nouvelles fonctionnalités.
+- fix/... : corrections.
 
-Exemples :
+Exemple :
 
-```text
+text
 main
-│
-└── dev
-    │
-    ├── feature/authentication
-    ├── feature/admin-fermes
-    ├── feature/admin-utilisateurs
-    ├── feature/responsable-recoltes
-    ├── feature/responsable-expeditions
-    ├── feature/rh-personnel
-    ├── feature/rh-presences
-    └── feature/comptable-depenses
-```
+ |
+ dev
+ |
+ +-- feature/authentication
+ |
+ +-- feature/admin-fermes
+ |
+ +-- feature/admin-utilisateurs
+ |
+ +-- feature/responsable-recoltes
+ |
+ +-- feature/responsable-expeditions
+ |
+ +-- feature/rh-personnel
+ |
+ +-- feature/rh-presences
+ |
+ +-- feature/comptable-depenses
+
 
 ## 15.2 Règles de collaboration
 
 - Chaque membre travaille sur sa branche.
-- Chaque fonctionnalité est développée dans une branche dédiée.
-- Les changements sont commités régulièrement.
-- Les membres récupèrent les dernières modifications de `dev`.
-- Les Pull Requests sont vérifiées avant fusion.
-- La branche `main` reste stable.
-- Aucun membre ne doit écraser le travail d'un autre.
+- Chaque fonctionnalité possède une branche dédiée.
+- Les commits sont réguliers.
+- Les membres récupèrent les dernières modifications de dev.
+- Les Pull Requests sont vérifiées.
+- main reste stable.
+- Les modifications des fichiers partagés sont coordonnées.
+- Les conflits sont résolus avant la fusion.
+- Chaque fusion doit être testée.
 
-## 15.3 Convention des commits
+## 15.3 Commits
 
-Exemples :
-
-```text
+bash
 feat(auth): add workspace selection
+feat(auth): add administrator alphanumeric code
 feat(admin): implement farm management
-feat(rh): add attendance validation
-feat(responsable): implement harvest management
+feat(admin): add user management
+feat(responsable): add harvest management
+feat(responsable): add expedition management
+feat(rh): implement attendance validation
+feat(comptable): add expense management
 fix(stock): prevent negative stock
-test(recolte): add service tests
-docs(architecture): update project structure
-```
+test(auth): add administrator authentication tests
+test(expedition): add transaction tests
+docs(architecture): update architecture
+
 
 ---
 
-# 16. Principes fondamentaux du projet
+# 16. Principes fondamentaux
 
-Les règles suivantes doivent être respectées pendant toute la durée du développement :
-
-1. Respecter l'architecture MVC + Service + DAO.
-2. Ne jamais placer de requêtes SQL dans les Controllers.
-3. Ne jamais placer les règles métier principales dans les Controllers.
-4. Centraliser les validations et les règles métier dans les Services.
-5. Respecter les autorisations de chaque espace.
-6. Isoler les données de chaque ferme pour les Responsables.
+1. Utiliser Java 21 LTS et JavaFX 21.
+2. Respecter MVC + Service + DAO.
+3. Ne jamais mettre de SQL dans les Controllers.
+4. Centraliser les règles métier dans les Services.
+5. Contrôler les autorisations à chaque opération sensible.
+6. Isoler les données des Responsables par ferme.
 7. Ne jamais exposer les informations financières au Responsable.
-8. Préserver les historiques des opérations.
-9. Ne jamais supprimer physiquement les données ayant un historique métier important.
-10. Ne jamais modifier automatiquement les anciens paiements lors d'une modification opérationnelle.
-11. Éviter les fonctionnalités inutiles et les complications qui ne répondent pas au cahier des charges.
-12. Conserver une interface cohérente entre les quatre espaces.
-13. Tester chaque fonctionnalité avant son intégration.
-14. Ne jamais écraser le travail déjà réalisé par un autre membre.
-15. Documenter les modifications importantes de l'architecture et de la base de données.
+8. Utiliser trois informations d'authentification pour l'Administrateur.
+9. Utiliser deux informations d'authentification pour les autres utilisateurs.
+10. Ne jamais stocker les mots de passe en clair.
+11. Ne jamais stocker le code alphanumérique en clair.
+12. Conserver les historiques.
+13. Ne jamais supprimer physiquement une opération métier importante.
+14. Protéger les transactions.
+15. Ne jamais permettre un stock négatif.
+16. Ne jamais modifier automatiquement les anciens paiements.
+17. Ne pas dupliquer les entités métier par rôle.
+18. Tester avant intégration.
+19. Respecter le travail des autres membres.
+20. Documenter les décisions techniques.
+21. Vérifier le code existant avant toute modification structurelle.
+22. Préserver les migrations appliquées.
+23. Maintenir une cohérence entre Architecture, Use Cases, Permissions et Database Design.
 
 ---
 
-# Conclusion
+# 17. Documents de référence
 
-Cette architecture constitue la référence technique et organisationnelle du projet ORANGIA.
+L'architecture globale doit rester cohérente avec :
 
-Elle définit les couches de développement, la structure des packages, les fichiers principaux, les responsabilités des quatre espaces, les règles métier, la base de données, les tests et la collaboration GitHub.
+- cahier-des-charges.md
+- role&permission.md
+- usecases.md
+- conception-bdd.md
+- planning.md
+- pom.xml
+- Le code source réellement présent dans le dépôt.
+- Les migrations réellement exécutées dans PostgreSQL.
 
-Toute nouvelle fonctionnalité doit respecter cette organisation et les décisions validées dans le cahier des charges.
+En cas de contradiction, les décisions métier validées doivent être réconciliées avant modification du code.
 
-**L'objectif est de construire une application cohérente, sécurisée, maintenable et professionnelle, sans complexité inutile.**
+Une modification de l'architecture doit être documentée et validée par l'équipe.
+
+Les documents de référence doivent également respecter les versions techniques suivantes :
+
+- Java 21.
+- JavaFX 21.
+- PostgreSQL.
+- JDBC.
+- Maven 3.9.x.
+
+---
+
+# CONCLUSION
+
+ORANGIA repose sur une architecture desktop structurée, avec quatre espaces de travail, une base de données centralisée et une séparation claire des responsabilités.
+
+L'application utilise *Java 21 (LTS), JavaFX 21, PostgreSQL, JDBC et Maven*.
+
+L'authentification de l'Administrateur bénéficie d'une protection supplémentaire reposant sur trois informations obligatoires :
+
+- Identifiant.
+- Mot de passe.
+- Code alphanumérique.
+
+Les autres utilisateurs accèdent à leurs espaces à l'aide de leur identifiant et de leur mot de passe.
+
+Les informations d'authentification sont protégées par des mécanismes de hachage adaptés.
+
+L'architecture MVC + Service + DAO permet de séparer l'interface, les règles métier et l'accès aux données.
+
+Les opérations sensibles, particulièrement les expéditions, les stocks, les présences et les paiements, sont protégées par des règles métier et des transactions.
+
+La structure proposée doit être implémentée progressivement, sans supprimer ni remplacer arbitrairement les éléments déjà développés.
+
+*Objectif final : construire ORANGIA comme une application cohérente, sécurisée, maintenable et professionnelle, en respectant les besoins réels de l'exploitation agricole et sans complexité inutile.*
+<!-- Architecture update - 18/11/2026 -->
+<!-- TEST UPDATE -->
