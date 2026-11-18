@@ -68,8 +68,3 @@ logs/
 *.temp
 *.swp
 *.swo
-# maven build 
-target/
-*.class
-.idea/
-.vscode/
