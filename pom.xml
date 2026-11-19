@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -16,9 +17,10 @@
 
     <!-- Properties -->
     <properties>
-        <maven.compiler.release>27</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>27.0.1</javafx.version>
+
+        <javafx.version>21.0.1</javafx.version>
         <junit.version>5.14.2</junit.version>
     </properties>
 
@@ -62,21 +64,21 @@
 
     </dependencies>
 
-    <!-- Build Configuration -->
+    <!-- BuildConfiguration -->
     <build>
         <plugins>
 
-            <!-- Java Compiler -->
+            <!-- JavaCompiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.1</version>
                 <configuration>
-                    <release>${maven.compiler.release}</release>
+                    <release>21</release>
                 </configuration>
             </plugin>
 
-            <!-- JavaFX Runner -->
+            <!-- JavaFXRunner -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
