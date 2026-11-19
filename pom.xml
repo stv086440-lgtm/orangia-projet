@@ -1,5 +1,6 @@
 
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -7,7 +8,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Project Information -->
+    <!-- Informations du projet -->
     <groupId>com.orangia</groupId>
     <artifactId>orangia</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -15,16 +16,20 @@
     <name>Orangia</name>
     <description>Orange Farm Management Application</description>
 
-    <!-- Properties -->
+    <!-- Versions centralisées -->
     <properties>
-        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <javafx.version>21.0.1</javafx.version>
+        <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <javafx.version>21.0.7</javafx.version>
+        <postgresql.version>42.7.7</postgresql.version>
+        <bcrypt.version>0.10.2</bcrypt.version>
         <junit.version>5.14.2</junit.version>
     </properties>
 
-    <!-- Dependencies -->
+    <!-- Dépendances -->
     <dependencies>
 
         <!-- JavaFX -->
@@ -40,18 +45,18 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- PostgreSQL -->
+        <!-- PostgreSQL JDBC -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.14</version>
+            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- BCrypt -->
         <dependency>
             <groupId>at.favre.lib</groupId>
             <artifactId>bcrypt</artifactId>
-            <version>0.10.2</version>
+            <version>${bcrypt.version}</version>
         </dependency>
 
         <!-- JUnit 5 -->
@@ -64,21 +69,21 @@
 
     </dependencies>
 
-    <!-- BuildConfiguration -->
+    <!-- Build -->
     <build>
         <plugins>
 
-            <!-- JavaCompiler -->
+            <!-- Compilation Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.1</version>
                 <configuration>
-                    <release>21</release>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
-            <!-- JavaFXRunner -->
+            <!-- Exécution JavaFX -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -88,7 +93,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Unit Tests -->
+            <!-- Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
