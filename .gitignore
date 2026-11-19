@@ -68,3 +68,13 @@ logs/
 *.temp
 *.swp
 *.swo
+
+# Maven
+target/
+
+# IDE
+.vscode/
+.idea/
+
+# Sensitive configuration
+.env
