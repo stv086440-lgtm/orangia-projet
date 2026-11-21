@@ -28,6 +28,8 @@ Responsabilités :
 - Organiser les tests globaux.
 - Valider les livrables de chaque Sprint.
 - Maintenir la documentation du projet.
+- creation data base et configuration . 
+- creation la strecture de projet (folder) .
 
 **Participation au développement :**
 
@@ -170,7 +172,7 @@ README.md
 
 # 3. SPRINT 1 — MODELS + DAO INTERFACES
 
-**Durée estimée : 2 à 3 jours**
+**Durée estimée : 2 à 3 jours** 
 
 ## Objectif
 
@@ -193,7 +195,7 @@ Pendant ce Sprint :
 - Pas de CSS.
 - Pas de logique SQL dans les Models.
 
-## Membre 2 — Authentification et Administration
+## Membre 2 — Authentification et Administration    (  moncif  )
 
 ### Models
 
@@ -274,7 +276,7 @@ Méthodes à prévoir :
 
 **Important :** aucun RoleDAO n'est nécessaire si les rôles restent définis statiquement dans Java.
 
-## Membre 3 — Gestion des fermes et parcelles
+## Membre 3 — Gestion des fermes et parcelles ( imanee & fatine )
 
 ### Models
 
@@ -327,7 +329,7 @@ Méthodes à prévoir :
 - update()
 - deactivate()
 
-## Membre 4 — Ressources Humaines
+## Membre 4 — Ressources Humaines   ( imanee & fatine )
 
 ### Models
 
@@ -426,7 +428,7 @@ Méthodes à prévoir :
 - findHistorique()
 - findByPeriod()
 
-## Membre 5 — Production et Expéditions
+## Membre 5 — Production et Expéditions     (idriss & bassma )
 
 ### Models
 
@@ -496,7 +498,7 @@ Méthodes à prévoir :
 
 **Important :** le Membre 5 est le propriétaire unique de `Expedition.java` et `ExpeditionDAO.java`. Les autres membres ne doivent pas créer de versions concurrentes.
 
-## Membre 6 — Comptabilité et services communs
+## Membre 6 — Comptabilité et services communs  (idriss & bassma )
 
 ### Models
 
