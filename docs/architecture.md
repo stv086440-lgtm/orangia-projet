@@ -103,13 +103,15 @@ L'environnement technique cible est basé sur :
 - Maven 3.9.x.
 - PostgreSQL.
 - JDBC PostgreSQL.
-- Classe principale : ma.orangia.MainApp.
+- Classe principale : com.orangia.Main.
 
-La classe MainApp étend javafx.application.Application.
+La classe Main étend javafx.application.Application.
 
 Le projet doit être compilé et exécuté avec Java 21.
 
-Le package racine existant ma.orangia doit être conservé.
+Le package racine existant com.orangia doit être conservé.
+
+Aucun renommage global du package racine ne doit être effectué sans nécessité technique réelle.
 
 Aucun renommage global de package ou changement de classe principale ne doit être réalisé sans vérification du code source et du pom.xml.
 
@@ -227,7 +229,7 @@ Exemples :
 - SalaireService
 - DepenseService
 - UtilisateurService
-- AdminCodeService
+
 
 Les transactions doivent être exécutées au niveau de la couche Service ou d'un composant transactionnel appelé par celle-ci.
 
@@ -268,6 +270,12 @@ Exemples :
 - DemandeDepense
 - Depense
 - Salaire
+- DemandeCorrection
+- PaiementSalaire
+- Document
+- Notification
+- JournalAction
+- ParametreSysteme
 
 ## 3.7 Règles techniques supplémentaires
 
@@ -1013,7 +1021,9 @@ Les suppressions physiques sont interdites pour les opérations historiques impo
 
 # 8. Structure globale du projet
 
-La structure cible conserve le package racine ma.orangia.
+La structure cible conserve le package racine réellement utilisé dans le projet :
+
+com.orangia
 
 text
 orangia/
@@ -1041,9 +1051,9 @@ orangia/
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   └── ma/
+│   │   │   └── com/
 │   │   │       └── orangia/
-│   │   │           ├── MainApp.java
+│   │   │           ├── Main.java
 │   │           ├── config/
 │   │           ├── navigation/
 │   │           ├── model/
@@ -1076,7 +1086,7 @@ orangia/
 │
 └── src/test/
     └── java/
-        └── ma/
+        └── com/
             └── orangia/
                 ├── security/
                 ├── service/
@@ -1111,17 +1121,15 @@ security/
 │
 ├── AuthService.java
 ├── PasswordHasher.java
-├── AdminCodeHasher.java
 ├── SessionManager.java
 ├── AccessControl.java
-└── RoleAccess.java
-
+|__ RoleAccess.java
+└── AuthorizationService.java
 
 Responsabilités :
 
 - AuthService : authentification des quatre rôles.
 - PasswordHasher : hachage et vérification des mots de passe.
-- AdminCodeHasher : hachage et vérification du code alphanumérique Administrateur.
 - SessionManager : création, consultation et invalidation des sessions.
 - AccessControl : contrôle des autorisations.
 - RoleAccess : définition des accès selon les rôles.
@@ -1178,19 +1186,19 @@ orangia/
 │
 ├── database/
 │   └── migrations/
-│       ├── V001__create_initial_schema.sql
-│       ├── V002__add_attendance_tables.sql
-│       └── ...
+│       ├── 001_schema.sql
+│       ├── 002_seed.sql
+│       └── 003_views.sql
 │
 ├── src/
 │   │
 │   ├── main/
 │   │   │
 │   │   ├── java/
-│   │   │   └── ma/
+│   │   │   └── com/
 │   │   │       └── orangia/
 │   │   │           │
-│   │   │           ├── MainApp.java
+│   │   │           ├── Main.java
 │   │   │           │
 │   │   │           ├── controller/
 │   │   │           │   ├── common/
@@ -1271,9 +1279,12 @@ orangia/
 │   │   │           │
 │   │   │           ├── service/
 │   │   │           │   ├── AuthService.java
+│   │   │           │
 │   │   │           │   ├── UtilisateurService.java
+│   │   │           │
 │   │   │           │   ├── FermeService.java
 │   │   │           │   ├── ParcelleService.java
+│   │   │           │
 │   │   │           │   ├── OuvrierService.java
 │   │   │           │   ├── AffectationService.java
 │   │   │           │   ├── PresenceService.java
@@ -1315,7 +1326,7 @@ orangia/
 │   │   │               └── NavigationManager.java
 │   │   │
 │   │   └── resources/
-│   │       └── ma/
+│   │       └── com/
 │   │           └── orangia/
 │   │               │
 │   │               ├── view/
@@ -1368,7 +1379,7 @@ orangia/
 │   │
 │   └── test/
 │       └── java/
-│           └── ma/
+│           └── com/
 │               └── orangia/
 │                   ├── service/
 │                   ├── dao/
@@ -1590,7 +1601,6 @@ Les mots de passe ne sont jamais enregistrés en clair.
 
 Le mécanisme de hachage utilise une fonction adaptée, par exemple PBKDF2-HMAC-SHA256 avec un sel aléatoire et des paramètres de coût conformes aux recommandations de sécurité.
 
-Le code alphanumérique Administrateur est également protégé par un mécanisme de hachage adapté.
 
 Les paramètres de hachage sont versionnés afin de permettre leur évolution.
 
@@ -1607,7 +1617,7 @@ La classe PasswordHasher centralise :
 
 La classe AdminCodeHasher centralise :
 
-- Le hachage du code alphanumérique.
+
 - La génération du sel.
 - La vérification du code.
 - L'évolution des paramètres de sécurité.
