@@ -1200,6 +1200,7 @@ orangia/
 │   │   │           │
 │   │   │           ├── Main.java
 │   │   │           │
+|   |   |           |
 │   │   │           ├── controller/
 │   │   │           │   ├── common/
 │   │   │           │   │   ├── WorkspaceController.java
@@ -1301,8 +1302,8 @@ orangia/
 │   │   │           │
 │   │   │           ├── database/
 │   │   │           │   ├── DatabaseConnection.java
-│   │   │           │   └── DatabaseConfig.java
-│   │   │           │
+│   │   │           │   ├── DatabaseConfig.java
+│   │   │           │   └── BaseDAO.java
 │   │   │           ├── security/
 │   │   │           │   ├── PasswordHasher.java
 │   │   │           │   ├── SessionManager.java
@@ -1387,6 +1388,17 @@ orangia/
 │                   └── validation/
 │
 └── docs/
+    ├── descreption-de-project/
+    |        ├── espc contable.pdf
+    |        ├── espc admin.pdf
+    |        ├── espc responsable.pdf
+    |        └── espc rh.pdf
+    ├── diagrammes/
+    |       ├── cas-d'etulisation.pdf
+    |       └── D-de-classe.pdf
+    ├── general/
+    |       ├──cahier des charges.pdf
+    |       └── orangia use case.pdf
     ├── architecture.md
     ├── role-permission.md
     ├── usecases.md
