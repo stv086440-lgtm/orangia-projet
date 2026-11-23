@@ -1,11 +1,11 @@
 # ORANGIA — PLANIFICATION DÉTAILLÉE DU DÉVELOPPEMENT
 
-**Version : 3.1 — Novembre 2026**  
+**Version : 3.4 — Novembre 2026**  
 **Projet : ORANGIA — Application de gestion de ferme agricole**  
 **Équipe : 6 personnes (1 Chef de projet + 5 développeurs)**  
 **Méthode : Développement par Sprints**  
 **Architecture : MVC + DAO + Service**  
-**Technologies : Java 21, JavaFX, FXML, CSS, Maven, PostgreSQL, JDBC, GitHub**
+**Technologies : Java 21, JavaFX 21, FXML, CSS, Maven 3.9.x, JUnit 5, PostgreSQL, JDBC, GitHub**
 
 ---
 
@@ -30,10 +30,14 @@ Responsabilités :
 - Maintenir la documentation du projet.
 - creation data base et configuration . 
 - creation la strecture de projet (folder) .
+- Configurer le `pom.xml` : `maven.compiler.release` à 21, dépendances (javafx-controls, javafx-fxml, postgresql, junit-jupiter), plugins (maven-compiler-plugin, javafx-maven-plugin, maven-surefire-plugin), versions centralisées dans les propriétés Maven.
+- Gérer les migrations de base de données : numéro unique, nom explicite, description, date, objectif, procédure de vérification, registre des migrations réellement exécutées, aucune modification d'une migration déjà appliquée, test sur la base `orangia_test` avant la base principale.
+- Préparer l'environnement de test (base `orangia_test`, port 5433) et vérifier que les tests ne se connectent jamais à la base principale.
+- Attribuer les fichiers des packages communs `exception/`, `validation/` et `util/` (voir Sprint 1).
 
 **Participation au développement :**
 
-Le Membre 1 ne prend en charge aucun développement de fonctionnalités et ne possède aucun fichier Java, FXML ou CSS à coder.
+Le Membre 1 ne prend en charge aucun développement de fonctionnalités et ne possède aucun fichier Java, FXML ou CSS à coder, à l'exception de deux fichiers de fondation sans logique métier dans le package `exception/` : `BusinessException.java` et `DatabaseException.java`.
 
 Il intervient uniquement dans la coordination, la vérification, la revue, les tests communs et l'intégration.
 
@@ -49,8 +53,11 @@ Responsable de :
 - Code alphanumérique de l'Administrateur.
 - Paramètres système.
 - Journalisation des actions.
-- Sauvegarde et restauration de la base de données.
+- Sauvegarde et restauration de la base de données (optionnel : Sprint 7 ou Version 2.0).
 - Supervision administrative.
+- Protection contre les tentatives de connexion répétées.
+- Réinitialisation des mots de passe et du code alphanumérique (sans jamais pouvoir les consulter).
+- Consultation du profil de chaque utilisateur.
 
 ## Membre 3 — Gestion des Fermes et Parcelles
 
@@ -62,6 +69,7 @@ Responsable de :
 - Consultation des informations des fermes.
 - Désactivation sécurisée des fermes et parcelles.
 - Respect des relations entre les fermes et les autres modules.
+- Attribution d'un Responsable principal actif unique à chaque ferme (en coordination avec le Membre 2).
 
 ## Membre 4 — Gestion des Ressources Humaines
 
@@ -79,6 +87,8 @@ Responsable de :
 - Gestion des paiements de salaires.
 - Règles particulières de rémunération.
 - Rapports RH.
+- Réception et traitement des demandes de correction soumises par le Responsable de Ferme.
+- Fourniture des coûts salariaux agrégés au Comptable (lecture agrégée uniquement).
 
 ## Membre 5 — Production et Gestion des Expéditions
 
@@ -92,6 +102,10 @@ Responsable de :
 - Gestion des confirmations, refus et annulations dans le respect des permissions.
 - Consultation des informations opérationnelles.
 - Espace Responsable de Ferme.
+- Soumission des demandes de correction de présence (via le CorrectionService du Membre 4).
+- Gestion des informations opérationnelles des clients (via le ClientService du Membre 6, sans accès aux montants financiers).
+- Rattachement des bons de livraison aux expéditions (via le DocumentService du Membre 6).
+- Lecture du stock disponible via la vue `V_STOCK_FERME`.
 
 **Important :** le Membre 5 est le propriétaire technique du module Expédition, y compris ses opérations de confirmation effectuées par le Comptable. Les autorisations du Comptable restent obligatoirement contrôlées par les Services.
 
@@ -108,6 +122,9 @@ Responsable de :
 - Dashboard Comptable.
 - Services de documents et notifications.
 - Composants communs nécessaires à la partie Comptabilité.
+- Consultation des récoltes et du stock en lecture seule.
+- Consultation des coûts salariaux agrégés.
+- Remboursements et annulations financières des paiements d'expéditions.
 
 ---
 
@@ -137,15 +154,20 @@ src/
     │       └── util/
     │
     └── resources/
-        ├── fxml/
-        ├── css/
-        ├── images/
+        ├── com/orangia/
+        │   ├── view/        (fichiers FXML)
+        │   ├── css/
+        │   ├── images/
+        │   └── fonts/
         └── database/
             └── migrations/
 
 src/test/java/com/orangia/
 ├── dao/
-└── service/
+├── service/
+├── security/
+├── validation/
+└── integration/
 
 docs/
 ├── architecture.md
@@ -167,6 +189,44 @@ README.md
 - Les fichiers déjà présents dans le projet doivent être complétés ou corrigés, pas dupliqués.
 - Les fichiers partagés doivent être validés avant modification.
 - La configuration PostgreSQL et la connexion JDBC sont déjà préparées : elles ne constituent pas une nouvelle tâche de développement.
+
+## Conventions de nommage
+
+| Élément | Convention | Exemple |
+|---|---|---|
+| Classes Java | PascalCase | `OuvrierService` |
+| Méthodes | camelCase | `ajouterOuvrier()` |
+| Variables | camelCase | `nomOuvrier` |
+| Interfaces DAO | Nom + DAO | `OuvrierDAO` |
+| Implémentations DAO | Nom + DAO + Impl | `OuvrierDAOImpl` |
+| Fichiers FXML | PascalCase + View (convention utilisée dans ce planning) | `OuvriersView.fxml` |
+| Fichiers CSS | kebab-case | `dashboard.css` |
+
+**Remarque :** l'Architecture indique le kebab-case pour les fichiers FXML (ex. `liste-ouvriers.fxml`). Le Chef de projet doit trancher entre les deux conventions avant le Sprint 6 et aligner les deux documents.
+
+## Configuration technique et environnements
+
+**pom.xml (Membre 1)**
+- Propriété de compilation : `<maven.compiler.release>21</maven.compiler.release>`.
+- Dépendances : javafx-controls, javafx-fxml, postgresql, junit-jupiter.
+- Plugins : maven-compiler-plugin, javafx-maven-plugin, maven-surefire-plugin.
+- Versions (Java 21, JavaFX 21, JUnit 5, Maven 3.9.x) centralisées dans les propriétés Maven.
+
+**Environnements de base de données**
+
+| Environnement | Base | Port |
+|---|---|---|
+| Principal / développement | `orangia` | 5432 |
+| Tests | `orangia_test` | 5433 |
+
+- Les identifiants de connexion sont configurés séparément pour chaque environnement.
+- Aucun identifiant n'est écrit dans le code ; les fichiers de configuration contenant des secrets ne sont pas versionnés.
+- Les tests ne se connectent jamais à la base principale par défaut.
+
+**Règles techniques JDBC et JavaFX**
+- Les requêtes JDBC et les opérations longues ne s'exécutent jamais sur le JavaFX Application Thread : utiliser `Task`, un Service JavaFX ou un `ExecutorService`.
+- Les connexions JDBC sont fermées correctement.
+- Les transactions gèrent explicitement commit et rollback.
 
 ---
 
@@ -226,6 +286,7 @@ src/main/java/com/orangia/model/
 - rôle.
 - statut du compte.
 - ferme associée pour le Responsable uniquement, selon le modèle validé.
+- hash du code alphanumérique (codeAccesHash) : obligatoire pour le rôle ADMIN, NULL pour les autres rôles, jamais enregistré en clair.
 
 **ParametreSysteme.java**
 - idParametre.
@@ -242,6 +303,10 @@ src/main/java/com/orangia/model/
 - identifiant de l'entité.
 - date de l'action.
 - description.
+- module concerné.
+- anciennes valeurs et nouvelles valeurs lorsque nécessaire.
+- résultat de l'action.
+- motif lorsque nécessaire.
 
 ### DAO Interfaces
 
@@ -261,6 +326,10 @@ Méthodes à prévoir :
 - save()
 - update()
 - deactivate()
+- updatePasswordHash()
+- updateCodeAccesHash()
+- findResponsableActifByFermeId()
+- assignFerme()
 
 **ParametreSystemeDAO**
 - findByName()
@@ -274,7 +343,9 @@ Méthodes à prévoir :
 - findByUtilisateur()
 - findByDateRange()
 
-**Important :** aucun RoleDAO n'est nécessaire si les rôles restent définis statiquement dans Java.
+**Important :** aucun RoleDAO n'est nécessaire si les rôles restent définis statiquement dans Java. `Role.java` est conservé ; `RoleDAO.java`, `RoleDAOImpl.java` et `RoleService.java` ne sont pas créés.
+
+**Migration liée à l'authentification Administrateur :** le champ `code_acces_hash` doit exister dans la table UTILISATEUR (obligatoire pour le compte Administrateur, NULL pour les autres rôles). Si le champ n'existe pas déjà, la migration est préparée avec le Chef de projet, testée sur `orangia_test`, puis appliquée sur la base principale. Le compte Administrateur existant reçoit son code selon une procédure d'initialisation contrôlée.
 
 ## Membre 3 — Gestion des fermes et parcelles ( imanee & fatine )
 
@@ -370,7 +441,7 @@ src/main/java/com/orangia/model/
 - Date de la fiche.
 - Ferme concernée.
 - Responsable concerné.
-- Statut de validation.
+- Statut de validation : BROUILLON, TRANSMISE, EN_TRAITEMENT, VALIDEE, RETOURNEE.
 - Horaires applicables.
 
 **Presence.java**
@@ -386,6 +457,7 @@ src/main/java/com/orangia/model/
 - Motif.
 - Justification.
 - Document justificatif éventuel.
+- Demandeur (Responsable à l'origine de la demande).
 - Statut.
 - Décision RH.
 
@@ -427,6 +499,8 @@ Méthodes à prévoir :
 - update()
 - findHistorique()
 - findByPeriod()
+- findFicheActiveByFermeAndDate() (FichePresenceDAO)
+- findCoutAgregeParPeriode() (SalaireDAO, lecture agrégée pour le Comptable)
 
 ## Membre 5 — Production et Expéditions     (idriss & bassma )
 
@@ -453,8 +527,7 @@ src/main/java/com/orangia/model/
 - client concerné.
 - quantité physique.
 - date.
-- statut opérationnel.
-- statut de confirmation.
+- statut du cycle de vie : BROUILLON, EN_ATTENTE_CONFIRMATION, CONFIRMEE, REFUSEE, REVISION_EN_ATTENTE, ANNULATION_EN_ATTENTE, ANNULEE (statut unique aligné sur l'Architecture, à valider avec le schéma PostgreSQL existant ; il remplace le statut opérationnel et le statut de confirmation séparés).
 - prix unitaire nullable.
 - quantité facturée nullable.
 - montant total calculé.
@@ -464,13 +537,16 @@ src/main/java/com/orangia/model/
 - utilisateur créateur.
 - dates de création et de modification.
 - observation.
+- bon de livraison (référence vers un Document).
+- historique des versions : l'ancienne version confirmée reste consultable après une révision.
 
 ### DAO Interfaces
 
 ```text
 src/main/java/com/orangia/dao/interfaces/
 ├── RecolteDAO.java
-└── ExpeditionDAO.java
+├── ExpeditionDAO.java
+└── StockDAO.java
 ```
 
 Méthodes à prévoir :
@@ -495,6 +571,13 @@ Méthodes à prévoir :
 - save()
 - update()
 - cancel()
+- findVersionsByExpeditionId()
+
+**StockDAO**
+- findStockByFermeId() (lecture de la vue `V_STOCK_FERME`)
+- findAllStock()
+
+**Vue V_STOCK_FERME :** le Membre 5 prépare le script de la vue (migration de vues, ex. `003_views.sql`, dans le dossier de migrations retenu). La vue calcule le stock par ferme à partir des récoltes valides et des quantités physiques des expéditions confirmées non annulées. Elle ne remplace pas les contrôles transactionnels réalisés pendant les opérations. Le Chef de projet valide la migration.
 
 **Important :** le Membre 5 est le propriétaire unique de `Expedition.java` et `ExpeditionDAO.java`. Les autres membres ne doivent pas créer de versions concurrentes.
 
@@ -524,6 +607,7 @@ src/main/java/com/orangia/model/
 **PaiementExpedition.java**
 - idPaiement.
 - expédition concernée.
+- type d'opération : PAIEMENT, REMBOURSEMENT ou ANNULATION_FINANCIERE.
 - date du paiement.
 - montant.
 - mode de paiement.
@@ -549,14 +633,16 @@ src/main/java/com/orangia/model/
 - description.
 - justificatif éventuel.
 - utilisateur ayant enregistré la dépense.
+- demande de dépense liée (nullable).
 
 **Document.java**
 - idDocument.
 - type de document.
 - nom.
-- chemin ou référence.
+- chemin ou référence de stockage.
 - date de création.
 - utilisateur créateur.
+- entité associée (type et identifiant) : expédition, fiche de présence, demande de correction, demande de dépense ou dépense réelle.
 
 **Notification.java**
 - idNotification.
@@ -586,6 +672,30 @@ Méthodes à prévoir :
 - save()
 - update()
 - findByPeriod()
+- findByEntite() (DocumentDAO)
+- findByExpeditionId() (PaiementExpeditionDAO)
+- findByDemandeId() (DepenseDAO)
+
+## Composants transverses (exceptions, validation, utilitaires)
+
+Les packages `exception/`, `validation/` et `util/` sont communs à tous les membres. Chaque fichier a un propriétaire unique. L'attribution ci-dessous est proposée et doit être validée par le Chef de projet avant le début du Sprint 1.
+
+| Package | Fichiers | Propriétaire | Échéance |
+|---|---|---|---|
+| exception/ | BusinessException, DatabaseException | Membre 1 (Chef de projet) | Sprint 1, avant le Sprint 2 |
+| exception/ | AuthenticationException, AuthorizationException | Membre 2 | Sprint 1, avant le Sprint 2 |
+| validation/ | InputValidator, LoginValidator | Membre 2 | Sprint 3 |
+| validation/ | FermeValidator, ParcelleValidator | Membre 3 | Sprint 3 |
+| validation/ | OuvrierValidator, PresenceValidator, SalaireValidator | Membre 4 | Sprint 3 |
+| validation/ | FormValidator | Membre 6 | Sprint 3 |
+| util/ | DateUtils, CurrencyUtils, AlertUtil | Membre 6 | Sprint 3 |
+| util/ | PdfGenerator | Membre 6 | Sprint 3, avant les rapports |
+| util/ | NavigationManager | Membre 2 | Sprint 5 |
+
+Règles :
+- Les autres membres utilisent ces composants sans les modifier ; toute modification passe par le propriétaire.
+- Les erreurs techniques ne sont jamais affichées directement à l'utilisateur.
+- Aucun mot de passe ni code alphanumérique n'apparaît dans les messages d'erreur ou les logs.
 
 ## Travail du Chef de projet pendant Sprint 1
 
@@ -597,6 +707,10 @@ Méthodes à prévoir :
 - Vérifier la cohérence entre les DAO Interfaces et le schéma validé.
 - Organiser les Pull Requests.
 - Valider les interfaces avant le début de leur implémentation.
+- Configurer le `pom.xml` (Java 21, JavaFX 21, JUnit 5, plugins).
+- Préparer le registre des migrations et valider les migrations de ce Sprint (`code_acces_hash`, vue `V_STOCK_FERME`).
+- Préparer la base de test `orangia_test` (port 5433).
+- Valider l'attribution des fichiers des packages `exception/`, `validation/` et `util/`.
 
 ## Livrables du Sprint 1
 
@@ -606,6 +720,9 @@ Méthodes à prévoir :
 - Types et noms harmonisés.
 - Projet compilable.
 - Aucun DAOImpl ou Service développé prématurément.
+- `pom.xml` configuré pour Java 21 et JavaFX 21.
+- Exceptions applicatives créées.
+- Registre des migrations en place.
 
 ---
 
@@ -639,6 +756,8 @@ Responsabilités :
 - Récupération et modification des paramètres.
 - Enregistrement des actions dans le journal.
 - Consultation de l'historique.
+- Mise à jour du hash du mot de passe et du hash du code alphanumérique.
+- Recherche du Responsable actif d'une ferme.
 
 ## Membre 3 — Fermes et parcelles
 
@@ -693,7 +812,8 @@ Fichiers :
 ```text
 src/main/java/com/orangia/dao/impl/
 ├── RecolteDAOImpl.java
-└── ExpeditionDAOImpl.java
+├── ExpeditionDAOImpl.java
+└── StockDAOImpl.java
 ```
 
 Responsabilités :
@@ -706,6 +826,8 @@ Responsabilités :
 - Modification des informations autorisées.
 - Récupération des expéditions confirmées, refusées ou annulées.
 - Conservation de l'historique opérationnel et financier.
+- Conservation des versions d'une expédition révisée.
+- Lecture du stock par ferme via la vue `V_STOCK_FERME`.
 
 ## Membre 6 — Comptabilité et services communs
 
@@ -728,7 +850,7 @@ Responsabilités :
 - Enregistrement des décisions du Comptable.
 - Enregistrement des dépenses réelles.
 - Récupération des dépenses par ferme et période.
-- Gestion des documents.
+- Gestion des documents liés à leur entité (expédition, fiche de présence, demande de correction, demande de dépense, dépense).
 - Gestion des notifications.
 
 ## Livrables du Sprint 2
@@ -762,15 +884,20 @@ src/main/java/com/orangia/security/
 ├── PasswordHasher.java
 ├── AdminCodeHasher.java
 ├── SessionManager.java
+├── AccessControl.java
+├── RoleAccess.java
 └── AuthorizationService.java
 
 src/main/java/com/orangia/service/
 ├── AuthService.java
 ├── UtilisateurService.java
 ├── ParametreSystemeService.java
-├── AuditService.java
-├── BackupService.java
-└── RestoreService.java
+├── JournalActionService.java
+└── AuditService.java
+
+src/main/java/com/orangia/validation/
+├── InputValidator.java
+└── LoginValidator.java
 ```
 
 Responsabilités :
@@ -781,6 +908,7 @@ Responsabilités :
 - Création et fermeture de session.
 - Vérification du statut du compte.
 - Vérification du rôle réel du compte.
+- Protection contre les tentatives répétées : limitation temporaire, délai progressif entre les tentatives, journalisation des échecs et procédure de déblocage contrôlée (le suivi des tentatives, en mémoire ou en base, est décidé avec le Chef de projet ; s'il est en base, une migration est coordonnée).
 
 **Authentification Admin**
 - L'espace Administrateur utilise :
@@ -793,22 +921,39 @@ Responsabilités :
 
 **Sécurité**
 - Gestion des sessions.
-- Vérification des autorisations.
+- Vérification des autorisations (AccessControl, RoleAccess et AuthorizationService ; pas de doublon avec un éventuel PermissionChecker).
+- Isolation des données : les Services déterminent la ferme du Responsable à partir de la session et ne font jamais confiance à un identifiant de ferme transmis par l'interface.
 - Protection des opérations sensibles.
-- Journalisation des actions importantes.
+- Journalisation des actions importantes avec les champs minimaux : utilisateur, action, module, entité, identifiant de l'entité, date et heure, anciennes et nouvelles valeurs, résultat, motif.
+- Journalisation des événements de sécurité : connexions réussies, tentatives échouées, accès à un espace non autorisé, réinitialisations de mots de passe, modifications du code Administrateur, désactivations de comptes.
+- Aucun mot de passe ni code alphanumérique dans le journal.
+
+**Gestion des comptes**
+- Réinitialisation des mots de passe et du code alphanumérique par l'Administrateur.
+- L'Administrateur ne peut jamais consulter un mot de passe ou un code existant.
+- Changement du code contrôlé et journalisé.
+
+**Profil**
+- Chaque utilisateur peut consulter les informations de son profil ; les modifications dépendent du rôle.
 
 **Paramètres système**
 - Gestion des horaires généraux de travail.
 - Heure de début et heure de fin.
 - Les horaires sont utilisés par RH lors du traitement des présences et salaires.
 - Les horaires appliqués aux anciennes fiches doivent rester conservés dans leur historique.
+- Jours de repos configurables (dimanches et autres jours définis) : ils ne sont pas comptabilisés comme absences.
+- Bonus mensuel de Cabran configurable par l'Administrateur (montant et seuil d'absences injustifiées).
+
+**Journal et audit**
+- JournalActionService : enregistrement centralisé des actions dans JOURNAL_ACTION via JournalActionDAO. Tous les Services l'appellent pour journaliser leurs opérations importantes et les événements de sécurité.
+- AuditService : consultation de l'historique, filtres (utilisateur, module, entité, période, ferme) et supervision ; il ne modifie jamais les anciennes entrées du journal.
+- Les anciennes entrées du journal ne peuvent pas être modifiées par les utilisateurs ordinaires.
+
+**Validation**
+- InputValidator et LoginValidator : validations réutilisables (champs obligatoires, formats, identifiant de connexion, longueur et format du code alphanumérique).
 
 **Sauvegarde et restauration**
-- Sauvegarde automatique quotidienne.
-- Sauvegarde manuelle par l'Administrateur.
-- Conservation des sept dernières sauvegardes.
-- Confirmation obligatoire avant restauration.
-- Journalisation des opérations de restauration.
+- Fonctionnalité optionnelle : elle n'est pas développée dans ce Sprint (voir la section « Optionnel » du Sprint 7). Si le temps manque, elle est reportée en Version 2.0.
 
 ## Membre 3 — Fermes et parcelles
 
@@ -818,6 +963,10 @@ Fichiers :
 src/main/java/com/orangia/service/
 ├── FermeService.java
 └── ParcelleService.java
+
+src/main/java/com/orangia/validation/
+├── FermeValidator.java
+└── ParcelleValidator.java
 ```
 
 Responsabilités :
@@ -825,9 +974,11 @@ Responsabilités :
 - Validation des informations des parcelles.
 - Contrôle des superficies.
 - Gestion des relations ferme-parcelle.
+- Validation des saisies via FermeValidator et ParcelleValidator, appelés par les Services.
 - Vérification des codes uniques.
 - Désactivation sécurisée.
 - Protection de l'historique.
+- Attribution d'un Responsable à une ferme : un Responsable actif n'est associé qu'à une seule ferme, et une ferme n'a qu'un seul Responsable principal actif à la fois (en utilisant les méthodes d'UtilisateurDAO du Membre 2).
 
 ## Membre 4 — Ressources Humaines
 
@@ -844,6 +995,11 @@ src/main/java/com/orangia/service/
 ├── SalaireService.java
 ├── PaiementService.java
 └── RapportRHService.java
+
+src/main/java/com/orangia/validation/
+├── OuvrierValidator.java
+├── PresenceValidator.java
+└── SalaireValidator.java
 ```
 
 Responsabilités :
@@ -859,6 +1015,7 @@ Responsabilités :
 - Calcul des salaires.
 - Gestion des paiements.
 - Génération des rapports RH.
+- Validation des saisies via OuvrierValidator, PresenceValidator et SalaireValidator, appelés par les Services.
 
 **Règles particulières :**
 
@@ -870,6 +1027,17 @@ Responsabilités :
 - Les absences justifiées acceptées et les jours de repos ne sont pas comptabilisés comme absences injustifiées.
 - Naïb : rémunération spécifique, sans bonus Cabran.
 - Cabran et Naïb restent des ouvriers ordinaires et ne possèdent pas de comptes utilisateurs dans l'application.
+
+**Règles des fiches de présence :**
+
+- Statuts : BROUILLON, TRANSMISE, EN_TRAITEMENT, VALIDEE, RETOURNEE.
+- Une fiche représente une journée pour une ferme ; une seule fiche active par ferme et par date est autorisée.
+- Après transmission, le Responsable ne peut plus modifier directement la fiche.
+- Les corrections passent par une DemandeCorrection soumise par le Responsable (via le CorrectionService) et traitée par RH.
+- Les dimanches et les jours de repos configurés ne sont pas des absences.
+- Les justificatifs acceptés sont conservés.
+
+**Coûts salariaux agrégés :** SalaireService fournit au Comptable les coûts salariaux agrégés par période et par ferme, sans donner accès aux dossiers individuels RH ni aux paiements de salaires.
 
 ## Membre 5 — Production et Expéditions
 
@@ -905,6 +1073,7 @@ Stock disponible = Récoltes valides − Quantités physiques des expéditions c
 - Ne jamais utiliser la quantité facturée pour calculer le stock.
 - Aucun ajustement manuel du stock.
 - Le stock ne doit jamais devenir négatif.
+- Le stock est lu par ferme via la vue `V_STOCK_FERME` ; la vue ne remplace pas les contrôles transactionnels réalisés pendant les opérations.
 
 **Expéditions**
 - Création d'une expédition par le Responsable.
@@ -915,6 +1084,24 @@ Stock disponible = Récoltes valides − Quantités physiques des expéditions c
 - Gestion de la confirmation.
 - Gestion des annulations.
 - Conservation de l'historique des décisions.
+
+**Cycle de vie et statuts de l'expédition :**
+
+- Statuts : BROUILLON, EN_ATTENTE_CONFIRMATION, CONFIRMEE, REFUSEE, REVISION_EN_ATTENTE, ANNULATION_EN_ATTENTE, ANNULEE.
+- Les transitions entre statuts sont centralisées dans ExpeditionService.
+- Une expédition non confirmée ou refusée ne réduit pas le stock.
+- Une expédition confirmée réduit le stock et ne peut pas être modifiée directement.
+- Une modification opérationnelle d'une expédition confirmée passe par une révision (REVISION_EN_ATTENTE) et exige une nouvelle confirmation ; l'ancienne version confirmée reste consultable.
+- Une annulation passe par ANNULATION_EN_ATTENTE ; une expédition annulée restaure la quantité physique précédemment déduite.
+- Une annulation après paiement nécessite un traitement financier par le Comptable ; les paiements historiques ne sont jamais supprimés automatiquement.
+- Le stock est contrôlé de façon transactionnelle lors de la confirmation : deux confirmations simultanées ne doivent jamais permettre un stock négatif.
+- Le bon de livraison est rattaché à l'expédition via le DocumentService (Membre 6).
+
+**Services d'autres membres appelés depuis l'espace Responsable :**
+
+- Corrections de présence : soumission via le CorrectionService (Membre 4).
+- Clients : informations opérationnelles via le ClientService (Membre 6), sans jamais exposer les montants financiers ni les paiements.
+- Documents : bons de livraison via le DocumentService (Membre 6).
 
 **Important :** le Responsable gère les opérations de sa propre ferme. Le Comptable intervient sur la confirmation et les informations financières selon ses permissions.
 
@@ -941,6 +1128,7 @@ Responsabilités :
 - Modification des coordonnées.
 - Consultation de l'historique.
 - Conservation des clients liés à des opérations historiques.
+- Séparation des informations : le Responsable accède uniquement aux informations opérationnelles, le Comptable gère aussi les informations financières.
 
 **Demandes de dépenses**
 - Consultation des demandes.
@@ -954,11 +1142,16 @@ Responsabilités :
 - Association à la ferme concernée.
 - Consultation par période.
 - Gestion des justificatifs.
+- Liaison facultative avec la demande de dépense initiale.
 
 **Paiements**
 - Enregistrement des paiements d'expéditions.
 - Consultation des paiements.
 - Historique financier.
+- Le total net des paiements ne peut pas dépasser le montant dû.
+- Les remboursements et annulations financières sont enregistrés comme opérations distinctes ; les paiements historiques ne sont jamais modifiés ni supprimés pour corriger une erreur.
+- Traitement financier d'une annulation d'expédition déjà payée.
+- Transaction protégeant le contrôle du solde contre les paiements simultanés.
 
 **Rapports et Dashboard**
 - Indicateurs financiers.
@@ -968,6 +1161,12 @@ Responsabilités :
 - Bilans par période.
 - Informations globales nécessaires au Dashboard Comptable.
 - Rapports PDF selon les besoins définis.
+- Coûts salariaux agrégés (fournis par le Membre 4).
+- Consultation des récoltes et du stock en lecture seule (via RecolteService et StockService du Membre 5).
+
+**Documents**
+- Association de chaque document à l'entité concernée : expéditions, fiches de présence, demandes de correction, demandes de dépenses, dépenses réelles.
+- Stockage des fichiers dans un emplacement contrôlé, distinct du code source ; la base conserve les métadonnées et la référence de stockage.
 
 **Règle importante :** l'acceptation d'une demande de dépense ne crée pas automatiquement une dépense réelle. La dépense doit être enregistrée séparément après sa réalisation.
 
@@ -980,16 +1179,20 @@ Responsabilités :
 - Transactions pour les opérations sensibles.
 - Validation des données.
 - Aucune logique métier importante uniquement dans les Controllers.
+- Les Services déterminent la ferme à partir de la session.
+- Fichiers `validation/` et `util/` créés par leurs propriétaires.
 
 ---
 
-# 6. SPRINT 4 — TESTS BACKEND
+# 6. SPRINT 4 — TESTS BACKEND, INTÉGRATION ET SÉCURITÉ
 
-**Durée estimée : 2 à 3 jours**
+**Durée estimée : 2 à 3 jours (à réévaluer avec l'ajout des tests d'intégration, de sécurité et de concurrence)**
 
 ## Objectif
 
 Vérifier les Models, DAO et Services avant de commencer le développement des interfaces graphiques.
+
+**Environnement :** les tests s'exécutent sur la base `orangia_test` (port 5433) et jamais sur la base principale. Les dossiers de tests sont `dao/`, `service/`, `security/`, `validation/` et `integration/`.
 
 ## Membre 2 — Tests Authentification et Administration
 
@@ -1007,8 +1210,14 @@ Tests :
 - Accès non autorisé.
 - Vérification des permissions.
 - Modification des paramètres système.
-- Journalisation des actions.
-- Sauvegarde et restauration.
+- Journalisation des actions via JournalActionService.
+- Consultation du journal via AuditService.
+- Un Responsable ne peut pas accéder à l'espace Administrateur.
+- Le code alphanumérique et les mots de passe ne sont jamais stockés en clair.
+- Les sessions sont invalidées après la déconnexion.
+- Limitation des tentatives de connexion répétées.
+- Réinitialisation d'un mot de passe et du code Administrateur, avec journalisation.
+- Consultation du profil.
 
 ## Membre 3 — Tests Fermes et Parcelles
 
@@ -1022,6 +1231,8 @@ Tests :
 - Recherche des parcelles d'une ferme.
 - Contrôle des données invalides.
 - Vérification des relations.
+- Attribution d'un Responsable à une ferme : un seul Responsable principal actif par ferme.
+- Un Responsable ne peut pas consulter les données d'une autre ferme.
 
 ## Membre 4 — Tests RH
 
@@ -1042,6 +1253,12 @@ Tests :
 - Paiement d'un salaire.
 - Vérification des cas particuliers Cabran et Naïb.
 - Vérification de la conservation de l'historique.
+- Une seule fiche active par ferme et par date.
+- Statuts de fiche et verrouillage après transmission.
+- Demande de correction soumise par le Responsable.
+- Les dimanches et jours de repos ne sont pas des absences.
+- RH ne peut pas modifier les quantités d'une expédition.
+- Coûts salariaux agrégés fournis au Comptable.
 
 ## Membre 5 — Tests Production et Expéditions
 
@@ -1058,6 +1275,12 @@ Tests :
 - Annulation d'une expédition confirmée selon les règles.
 - Vérification de la quantité physique déduite du stock.
 - Vérification de l'impossibilité d'obtenir un stock négatif.
+- Cohérence de la vue `V_STOCK_FERME` avec le calcul du stock.
+- Révision d'une expédition confirmée : nouvelle confirmation requise, ancienne version conservée.
+- Annulation d'une expédition payée : traitement financier requis.
+- Un Responsable ne peut pas consulter les paiements ni confirmer financièrement une expédition.
+- Un Responsable ne peut pas consulter une autre ferme.
+- Informations des clients limitées aux données opérationnelles pour le Responsable.
 
 ## Membre 6 — Tests Comptabilité
 
@@ -1072,6 +1295,30 @@ Tests :
 - Consultation de l'historique financier.
 - Vérification des calculs.
 - Vérification des rapports et indicateurs.
+- Un Comptable ne peut pas modifier une récolte.
+- Remboursement et annulation financière enregistrés comme opérations distinctes.
+- Le total net des paiements ne dépasse jamais le montant dû.
+- Association des documents aux entités concernées.
+- Consultation des récoltes et du stock en lecture seule.
+
+## Tests d'intégration
+
+Coordonnés par le Chef de projet, écrits par chaque membre pour ses propres DAO et Services.
+
+- Connexion à PostgreSQL de test.
+- Requêtes JDBC de chaque DAOImpl.
+- Contraintes : PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, CHECK.
+- Transactions : commit et rollback.
+- Conservation des historiques.
+- Création des comptes et authentification des quatre rôles.
+- Interactions entre modules.
+
+Le chargement des fichiers FXML est testé au Sprint 7.
+
+## Tests de concurrence
+
+- Deux confirmations simultanées d'expéditions sur le même stock : le stock ne devient jamais négatif (Membre 5).
+- Deux paiements simultanés sur la même expédition : le total net ne dépasse jamais le montant dû (Membre 6).
 
 ## Chef de projet
 
@@ -1082,6 +1329,8 @@ Responsabilités :
 - Prioriser les corrections.
 - Vérifier les interactions entre les modules.
 - Valider le Backend avant le développement des Controllers.
+- Vérifier que la base `orangia_test` est utilisée par tous les tests.
+- Vérifier que les migrations sont testées sur `orangia_test`.
 
 ## Livrables du Sprint 4
 
@@ -1090,6 +1339,8 @@ Responsabilités :
 - Règles métier vérifiées.
 - Permissions vérifiées.
 - Backend stable.
+- Tests d'intégration, de sécurité d'accès et de concurrence réussis.
+- Tests exécutés uniquement sur `orangia_test`.
 
 ---
 
@@ -1112,6 +1363,7 @@ Les Controllers doivent :
 - Pas de requêtes SQL dans les Controllers.
 - Pas de logique métier complexe.
 - Pas de contournement des permissions.
+- Aucune requête JDBC ni opération longue sur le JavaFX Application Thread (utiliser `Task`, un Service JavaFX ou un `ExecutorService`).
 
 ## Membre 2 — Authentification et Administration
 
@@ -1126,7 +1378,7 @@ src/main/java/com/orangia/controller/
 ├── SupervisionController.java
 ├── HistoriqueAdminController.java
 ├── ParametresController.java
-└── SauvegardeController.java
+└── ProfilController.java
 ```
 
 Responsabilités :
@@ -1138,7 +1390,8 @@ Responsabilités :
 - Supervision.
 - Historique des actions.
 - Paramètres système.
-- Sauvegarde et restauration.
+- Réinitialisation des mots de passe et du code Administrateur (via UtilisateurController).
+- Consultation du profil.
 
 ## Membre 3 — Fermes et Parcelles
 
@@ -1154,6 +1407,7 @@ Responsabilités :
 - Affichage des fermes.
 - Création et modification.
 - Désactivation.
+- Attribution du Responsable à une ferme.
 - Affichage des parcelles.
 - Création et modification.
 - Recherche par ferme.
@@ -1197,6 +1451,8 @@ src/main/java/com/orangia/controller/
 ├── StockController.java
 ├── ExpeditionConfirmationController.java
 ├── PresenceTransmissionController.java
+├── CorrectionResponsableController.java
+├── ClientResponsableController.java
 ├── DemandeDepenseResponsableController.java
 ├── DashboardResponsableController.java
 └── HistoriqueResponsableController.java
@@ -1210,8 +1466,11 @@ Responsabilités :
 - Écrans nécessaires au traitement des confirmations selon les permissions.
 - Transmission des fiches de présence.
 - Consultation des demandes de dépenses.
-- Dashboard Responsable.
+- Dashboard Responsable avec cinq indicateurs : récoltes aujourd'hui, expéditions aujourd'hui, stock disponible, présences envoyées, demandes en attente.
 - Historique des opérations de la ferme.
+- Soumission des demandes de correction de présence (appel du CorrectionService).
+- Gestion des informations opérationnelles des clients (appel du ClientService, sans données financières).
+- Ajout du bon de livraison aux expéditions (appel du DocumentService).
 
 ## Membre 6 — Comptabilité
 
@@ -1226,6 +1485,7 @@ src/main/java/com/orangia/controller/
 ├── RapportController.java
 ├── DocumentController.java
 ├── NotificationController.java
+├── RecoltesStockComptableController.java
 └── DashboardController.java
 ```
 
@@ -1239,6 +1499,8 @@ Responsabilités :
 - Documents.
 - Notifications.
 - Dashboard Comptable.
+- Consultation des récoltes et du stock en lecture seule (RecoltesStockComptableController, appelle RecolteService et StockService).
+- Consultation des coûts salariaux agrégés.
 
 **Attention :** le Membre 5 reste propriétaire du module technique Expédition. Le Controller du Comptable doit appeler le Service correspondant pour confirmer ou refuser une expédition, sans créer un deuxième module Expédition.
 
@@ -1250,6 +1512,7 @@ Responsabilités :
 - Événements gérés.
 - Gestion des erreurs d'interface.
 - Respect des permissions.
+- Opérations longues exécutées hors du JavaFX Application Thread.
 
 ---
 
@@ -1273,7 +1536,7 @@ Les interfaces doivent respecter :
 FXML :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── WelcomeView.fxml
 ├── LoginView.fxml
 ├── AdminLoginView.fxml
@@ -1282,13 +1545,13 @@ src/main/resources/fxml/
 ├── SupervisionView.fxml
 ├── HistoriqueAdminView.fxml
 ├── ParametresView.fxml
-└── SauvegardeView.fxml
+└── ProfilView.fxml
 ```
 
 CSS :
 
 ```text
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 ├── auth.css
 └── admin.css
 ```
@@ -1302,14 +1565,15 @@ Responsabilités :
 - Supervision.
 - Historique.
 - Paramètres.
-- Sauvegarde et restauration.
+- Réinitialisation des mots de passe et du code Administrateur.
+- Profil utilisateur.
 
 ## Membre 3 — Fermes et Parcelles
 
 FXML :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── FermesView.fxml
 └── ParcellesView.fxml
 ```
@@ -1317,7 +1581,7 @@ src/main/resources/fxml/
 CSS :
 
 ```text
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 └── fermes.css
 ```
 
@@ -1325,6 +1589,7 @@ Responsabilités :
 - Liste des fermes.
 - Formulaire d'ajout et modification.
 - Détails d'une ferme.
+- Attribution du Responsable à une ferme.
 - Liste des parcelles.
 - Formulaires de parcelles.
 - Recherche et filtres.
@@ -1334,7 +1599,7 @@ Responsabilités :
 FXML :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── OuvriersView.fxml
 ├── AffectationsView.fxml
 ├── TarifsView.fxml
@@ -1349,7 +1614,7 @@ src/main/resources/fxml/
 CSS :
 
 ```text
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 └── rh.css
 ```
 
@@ -1371,12 +1636,14 @@ Responsabilités :
 FXML :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── RecoltesView.fxml
 ├── ExpeditionsView.fxml
 ├── StockView.fxml
 ├── ConfirmationExpeditionView.fxml
 ├── PresenceTransmissionView.fxml
+├── CorrectionsResponsableView.fxml
+├── ClientsResponsableView.fxml
 ├── DemandesDepensesResponsableView.fxml
 ├── DashboardResponsableView.fxml
 └── HistoriqueResponsableView.fxml
@@ -1385,7 +1652,7 @@ src/main/resources/fxml/
 CSS :
 
 ```text
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 └── responsable.css
 ```
 
@@ -1396,7 +1663,9 @@ Responsabilités :
 - État des expéditions.
 - Transmission des présences.
 - Consultation des demandes de dépenses.
-- Dashboard du Responsable.
+- Dashboard du Responsable avec ses cinq indicateurs.
+- Demandes de correction de présence.
+- Clients (informations opérationnelles uniquement).
 - Historique opérationnel.
 
 ## Membre 6 — Comptabilité
@@ -1404,7 +1673,7 @@ Responsabilités :
 FXML :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── ClientsView.fxml
 ├── ClientsFinanciersView.fxml
 ├── PaiementsView.fxml
@@ -1413,13 +1682,14 @@ src/main/resources/fxml/
 ├── RapportsView.fxml
 ├── DocumentsView.fxml
 ├── NotificationsView.fxml
+├── RecoltesStockView.fxml
 └── DashboardView.fxml
 ```
 
 CSS :
 
 ```text
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 └── comptable.css
 ```
 
@@ -1433,6 +1703,8 @@ Responsabilités :
 - Documents.
 - Notifications.
 - Dashboard Comptable.
+- Récoltes et stock en lecture seule.
+- Coûts salariaux agrégés.
 
 ## Composants communs
 
@@ -1441,13 +1713,13 @@ Les composants communs doivent être attribués par le Chef de projet avant leur
 Fichiers concernés :
 
 ```text
-src/main/resources/fxml/
+src/main/resources/com/orangia/view/
 ├── MainLayoutView.fxml
 ├── SidebarView.fxml
 ├── TopbarView.fxml
 └── ConfirmationDialog.fxml
 
-src/main/resources/css/
+src/main/resources/com/orangia/css/
 ├── style.css
 └── components.css
 ```
@@ -1486,6 +1758,7 @@ Assembler les différents modules, vérifier les interactions entre les rôles e
 - Valider les corrections.
 - Vérifier la documentation.
 - Préparer la version finale.
+- Vérifier que les migrations sont appliquées sur `orangia_test` puis sur la base principale.
 
 ## Membre 2 — Authentification et Administration
 
@@ -1493,8 +1766,7 @@ Assembler les différents modules, vérifier les interactions entre les rôles e
 - Tester le code alphanumérique Admin.
 - Vérifier les permissions.
 - Tester les paramètres système.
-- Tester la sauvegarde et la restauration.
-- Vérifier le journal des actions.
+- Vérifier le journal des actions (JournalActionService et AuditService).
 
 ## Membre 3 — Fermes et Parcelles
 
@@ -1536,6 +1808,32 @@ Assembler les différents modules, vérifier les interactions entre les rôles e
 - Tester le Dashboard Comptable.
 - Vérifier les interactions avec les expéditions.
 
+## Optionnel — Sauvegarde et restauration (Sprint 7 ou Version 2.0)
+
+Cette fonctionnalité n'est réalisée que si les vérifications finales ci-dessous sont terminées et si le temps le permet. Sinon, elle est reportée en Version 2.0. Elle ne bloque pas la livraison.
+
+Propriétaire : Membre 2.
+
+```text
+src/main/java/com/orangia/service/
+├── BackupService.java
+└── RestoreService.java
+
+src/main/java/com/orangia/controller/
+└── SauvegardeController.java
+
+src/main/resources/com/orangia/view/
+└── SauvegardeView.fxml
+```
+
+Règles :
+- Sauvegarde automatique quotidienne.
+- Sauvegarde manuelle par l'Administrateur.
+- Conservation des sept dernières sauvegardes.
+- Confirmation obligatoire avant restauration.
+- Journalisation des sauvegardes et des restaurations via JournalActionService.
+- Tests sur la base `orangia_test`, jamais sur la base principale.
+
 ## Vérifications finales
 
 - Tous les modules fonctionnent.
@@ -1551,6 +1849,9 @@ Assembler les différents modules, vérifier les interactions entre les rôles e
 - Aucun bug bloquant.
 - Projet compilable et exécutable.
 - Documentation mise à jour.
+- Les fichiers FXML se chargent sans erreur (test d'intégration).
+- Les tests de sécurité d'accès sont réussis.
+- Aucun mot de passe ni code alphanumérique en clair dans la base, les logs ou les messages d'erreur.
 
 ---
 
@@ -1683,6 +1984,17 @@ docs: update development planning
 16. Le code alphanumérique Admin ne doit jamais être enregistré en clair.
 17. Les migrations SQL doivent être coordonnées et versionnées.
 18. Ne pas réintroduire les anciennes tables de permissions dynamiques si l'architecture validée utilise des permissions statiques en Java.
+19. Les Services déterminent la ferme du Responsable à partir de la session ; ils ne font jamais confiance à un identifiant de ferme transmis par l'interface.
+20. Les tests ne se connectent jamais à la base principale : ils utilisent `orangia_test` (port 5433).
+21. Une migration appliquée n'est jamais modifiée ; les corrections passent par une nouvelle migration, testée sur `orangia_test` avant la base principale.
+22. Les requêtes JDBC et les opérations longues ne s'exécutent pas sur le JavaFX Application Thread.
+23. Les fichiers des packages `exception/`, `validation/` et `util/` ont un propriétaire unique attribué par le Chef de projet.
+24. Le stock est calculé exclusivement via la vue `V_STOCK_FERME`.
+25. Aucune table `PRODUIT_STOCK` ne doit être créée.
+26. Aucune table `MOUVEMENT_STOCK` ne doit être créée.
+27. Les rôles sont statiques dans Java et ne sont pas administrables depuis l'application.
+28. Toute modification du schéma SQL passe par une migration versionnée.
+29. Les fichiers FXML, CSS et images sont placés uniquement sous `src/main/resources/com/orangia/` ; les anciens chemins `resources/fxml/` et `resources/css/` ne sont plus utilisés.
 
 ---
 
@@ -1727,8 +2039,9 @@ Il est validé lorsque :
 - Des Dashboards adaptés aux rôles.
 - Des rapports.
 - Des notifications et documents.
-- Une base PostgreSQL intégrée.
+- Une base PostgreSQL intégrée, avec la vue `V_STOCK_FERME` et les migrations versionnées.
 - Une architecture MVC + DAO + Service cohérente.
+- Des tests unitaires, d'intégration, de sécurité d'accès et de concurrence réussis.
 - Une application intégrée, testée et stable.
 
 ---
