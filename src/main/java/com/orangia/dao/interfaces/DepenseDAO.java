@@ -3,24 +3,21 @@ package com.orangia.dao.interfaces;
 import com.orangia.model.Depense;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface DepenseDAO {
 
-    // Rechercher une dépense par son ID
-    Depense findById(int idDepense);
+    Optional<Depense> findById(Long idDepense);
 
-    // Récupérer toutes les dépenses
     List<Depense> findAll();
 
-    // Récupérer les dépenses d'une ferme
-    List<Depense> findByFermeId(int idFerme);
+    List<Depense> findByFermeId(Long idFerme);
 
-    // Rechercher les dépenses pendant une période
     List<Depense> findByPeriod(LocalDate dateDebut, LocalDate dateFin);
 
-    // Ajouter une dépense
-    void save(Depense depense);
+    List<Depense> findByDemandeId(Long idDemande);
 
-    // Modifier une dépense
+    Depense save(Depense depense);
+
     void update(Depense depense);
 }

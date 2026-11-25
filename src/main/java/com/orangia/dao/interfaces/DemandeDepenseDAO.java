@@ -1,4 +1,3 @@
-
 package com.orangia.dao.interfaces;
 
 import com.orangia.model.DemandeDepense;
@@ -7,7 +6,7 @@ import java.util.Optional;
 
 public interface DemandeDepenseDAO {
 
-    Optional<DemandeDepense> findById(Long id);
+    Optional<DemandeDepense> findById(Long idDemande);
 
     List<DemandeDepense> findAll();
 
@@ -17,7 +16,7 @@ public interface DemandeDepenseDAO {
 
     List<DemandeDepense> findPending();
 
-    void save(DemandeDepense demande);
+    DemandeDepense save(DemandeDepense demande);
 
     void update(DemandeDepense demande);
 }

@@ -1,4 +1,3 @@
-
 package com.orangia.dao.interfaces;
 
 import com.orangia.model.Client;
@@ -7,7 +6,7 @@ import java.util.Optional;
 
 public interface ClientDAO {
 
-    Optional<Client> findById(Long id);
+    Optional<Client> findById(Long idClient);
 
     List<Client> findAll();
 
@@ -15,7 +14,7 @@ public interface ClientDAO {
 
     List<Client> findByStatut(String statut);
 
-    void save(Client client);
+    Client save(Client client);
 
     void update(Client client);
 

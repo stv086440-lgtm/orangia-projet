@@ -1,4 +1,5 @@
 package com.orangia.dao.interfaces;
+
 import com.orangia.model.Parcelle;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface ParcelleDAO {
 
     Parcelle save(Parcelle parcelle);
 
-    Parcelle update(Parcelle parcelle);
+    void update(Parcelle parcelle);
 
     boolean deactivate(Long idParcelle);
 }

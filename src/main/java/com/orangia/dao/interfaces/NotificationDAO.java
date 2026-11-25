@@ -1,22 +1,22 @@
-
 package com.orangia.dao.interfaces;
 
 import com.orangia.model.Notification;
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationDAO {
 
-    Notification findById(int idNotification);
+    Optional<Notification> findById(Long idNotification);
 
     List<Notification> findAll();
 
-    List<Notification> findByDestinataireId(int idDestinataire);
+    List<Notification> findByDestinataireId(Long idUtilisateur);
 
-    List<Notification> findUnreadByDestinataireId(int idDestinataire);
+    List<Notification> findUnreadByDestinataireId(Long idUtilisateur);
 
-    void save(Notification notification);
+    Notification save(Notification notification);
 
     void update(Notification notification);
 
-    void markAsRead(int idNotification);
+    void markAsRead(Long idNotification);
 }

@@ -1,7 +1,6 @@
 package com.orangia.dao.interfaces;
 
 import com.orangia.model.ParametreSysteme;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +19,18 @@ import java.util.Optional;
 public interface ParametreSystemeDAO {
 
     /**
-     * Recherche un paramètre par sa clé fonctionnelle unique.
+     * Recherche un paramètre par son nom fonctionnel unique.
      *
-     * @param cle clé unique du paramètre
+     * <p>Le planning nomme cette opération {@code findByName()} et décrit
+     * « nom du paramètre ». Le Model expose actuellement {@code cle} ; le
+     * mapping JDBC doit utiliser la colonne unique correspondante sans
+     * modifier le Model.</p>
+     *
+     * @param nom nom/clé unique du paramètre
      * @return le paramètre trouvé, ou {@link Optional#empty()} sinon
      * @throws SQLException si une erreur d'accès à la base survient
      */
-    Optional<ParametreSysteme> findByCle(String cle) throws SQLException;
+    Optional<ParametreSysteme> findByName(String nom) throws SQLException;
 
     /**
      * Retourne tous les paramètres système.
