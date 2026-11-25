@@ -2,6 +2,7 @@
 package com.orangia.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class DemandeDepense {
 
@@ -13,6 +14,8 @@ public class DemandeDepense {
     private BigDecimal montantEstime;
     private String description;
     private String justification;
+    private LocalDate dateDemande;
+    private LocalDate dateDecision;
     private String statut;
     private Long creePar;
     private Long traiteePar;
@@ -83,6 +86,22 @@ public class DemandeDepense {
 
     public void setJustification(String justification) {
         this.justification = justification;
+    }
+
+    public LocalDate getDateDemande() {
+        return dateDemande;
+    }
+
+    public void setDateDemande(LocalDate dateDemande) {
+        this.dateDemande = dateDemande;
+    }
+
+    public LocalDate getDateDecision() {
+        return dateDecision;
+    }
+
+    public void setDateDecision(LocalDate dateDecision) {
+        this.dateDecision = dateDecision;
     }
 
     public String getStatut() {

@@ -10,6 +10,7 @@ public class Client {
     private String email;
     private String adresse;
     private String ville;
+    private String notes;
     private String statut;
 
     public Client() {
@@ -69,6 +70,14 @@ public class Client {
 
     public void setVille(String ville) {
         this.ville = ville;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public String getStatut() {
