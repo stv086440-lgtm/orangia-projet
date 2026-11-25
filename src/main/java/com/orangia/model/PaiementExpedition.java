@@ -4,18 +4,39 @@ package com.orangia.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Opération financière liée à une expédition (table PAIEMENT_EXPEDITION).
+ *
+ * <p>{@code typeOperation} distingue PAIEMENT, REMBOURSEMENT et
+ * ANNULATION_FINANCIERE (planning, § Membre 6 ; architecture, § 6.7). Les
+ * paiements historiques ne sont jamais modifiés ni supprimés pour corriger une
+ * erreur : une opération distincte est enregistrée.</p>
+ */
 public class PaiementExpedition {
 
     private Long idPaiement;
     private Long idExpedition;
+    private String typeOperation;
     private BigDecimal montantPaye;
     private LocalDate datePaiement;
     private String modePaiement;
     private String reference;
     private Long enregistrePar;
-    private String statutPaiement;
 
     public PaiementExpedition() {
+    }
+
+    public PaiementExpedition(Long idPaiement, Long idExpedition, String typeOperation,
+                              BigDecimal montantPaye, LocalDate datePaiement,
+                              String modePaiement, String reference, Long enregistrePar) {
+        this.idPaiement = idPaiement;
+        this.idExpedition = idExpedition;
+        this.typeOperation = typeOperation;
+        this.montantPaye = montantPaye;
+        this.datePaiement = datePaiement;
+        this.modePaiement = modePaiement;
+        this.reference = reference;
+        this.enregistrePar = enregistrePar;
     }
 
     public Long getIdPaiement() {
@@ -32,6 +53,14 @@ public class PaiementExpedition {
 
     public void setIdExpedition(Long idExpedition) {
         this.idExpedition = idExpedition;
+    }
+
+    public String getTypeOperation() {
+        return typeOperation;
+    }
+
+    public void setTypeOperation(String typeOperation) {
+        this.typeOperation = typeOperation;
     }
 
     public BigDecimal getMontantPaye() {
@@ -72,13 +101,5 @@ public class PaiementExpedition {
 
     public void setEnregistrePar(Long enregistrePar) {
         this.enregistrePar = enregistrePar;
-    }
-
-    public String getStatutPaiement() {
-        return statutPaiement;
-    }
-
-    public void setStatutPaiement(String statutPaiement) {
-        this.statutPaiement = statutPaiement;
     }
 }

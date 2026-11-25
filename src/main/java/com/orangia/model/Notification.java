@@ -1,53 +1,62 @@
-
 package com.orangia.model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
+/**
+ * Notification destinée à un utilisateur (table NOTIFICATION).
+ *
+ * <p>Les noms des propriétés reprennent les colonnes SQL
+ * {@code type_notification} et {@code date_creation}. La date est un
+ * {@link OffsetDateTime}, conforme au type TIMESTAMPTZ de la colonne et à la
+ * convention déjà utilisée par {@code Utilisateur} et {@code Ferme}.</p>
+ */
 public class Notification {
 
-    private int idNotification;
-    private int idDestinataire;
-    private String type;
+    private Long idNotification;
+    private Long idUtilisateur;
+    private String titre;
     private String message;
-    private LocalDateTime date;
+    private String typeNotification;
     private boolean lu;
+    private OffsetDateTime dateCreation;
 
     public Notification() {
     }
 
-    public Notification(int idNotification, int idDestinataire,
-            String type, String message,
-            LocalDateTime date, boolean lu) {
+    public Notification(Long idNotification, Long idUtilisateur, String titre,
+                        String message, String typeNotification, boolean lu,
+                        OffsetDateTime dateCreation) {
         this.idNotification = idNotification;
-        this.idDestinataire = idDestinataire;
-        this.type = type;
+        this.idUtilisateur = idUtilisateur;
+        this.titre = titre;
         this.message = message;
-        this.date = date;
+        this.typeNotification = typeNotification;
         this.lu = lu;
+        this.dateCreation = dateCreation;
     }
 
-    public int getIdNotification() {
+    public Long getIdNotification() {
         return idNotification;
     }
 
-    public void setIdNotification(int idNotification) {
+    public void setIdNotification(Long idNotification) {
         this.idNotification = idNotification;
     }
 
-    public int getIdDestinataire() {
-        return idDestinataire;
+    public Long getIdUtilisateur() {
+        return idUtilisateur;
     }
 
-    public void setIdDestinataire(int idDestinataire) {
-        this.idDestinataire = idDestinataire;
+    public void setIdUtilisateur(Long idUtilisateur) {
+        this.idUtilisateur = idUtilisateur;
     }
 
-    public String getType() {
-        return type;
+    public String getTitre() {
+        return titre;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTitre(String titre) {
+        this.titre = titre;
     }
 
     public String getMessage() {
@@ -58,12 +67,12 @@ public class Notification {
         this.message = message;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public String getTypeNotification() {
+        return typeNotification;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setTypeNotification(String typeNotification) {
+        this.typeNotification = typeNotification;
     }
 
     public boolean isLu() {
@@ -72,5 +81,13 @@ public class Notification {
 
     public void setLu(boolean lu) {
         this.lu = lu;
+    }
+
+    public OffsetDateTime getDateCreation() {
+        return dateCreation;
+    }
+
+    public void setDateCreation(OffsetDateTime dateCreation) {
+        this.dateCreation = dateCreation;
     }
 }
