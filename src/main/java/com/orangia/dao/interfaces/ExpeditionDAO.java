@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface ExpeditionDAO {
 
-    Optional<Expedition> findById(Long id);
+    Optional<Expedition> findById(Long idExpedition);
 
     List<Expedition> findAll();
 
@@ -18,9 +18,18 @@ public interface ExpeditionDAO {
 
     List<Expedition> findPendingConfirmation();
 
-    void save(Expedition expedition);
+    Expedition save(Expedition expedition);
 
     void update(Expedition expedition);
 
     void cancel(Long idExpedition);
+
+    /**
+     * Retourne les versions d'une expédition révisée, y compris l'ancienne
+     * version confirmée qui doit rester consultable.
+     *
+     * @param idExpedition identifiant de l'expédition
+     * @return les versions trouvées, vide si aucune
+     */
+    List<Expedition> findVersionsByExpeditionId(Long idExpedition);
 }
