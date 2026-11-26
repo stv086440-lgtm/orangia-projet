@@ -3,13 +3,22 @@ package com.orangia.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Récolte d'une parcelle (table RECOLTE).
+ *
+ * <p>{@code quantiteKg} correspond à la colonne SQL {@code quantite_kg},
+ * conformément à la convention déjà utilisée par {@code Expedition}. Le motif
+ * d'annulation est prévu par le planning (§ Membre 5) mais n'a pas encore de
+ * colonne dans {@code 001_schema.sql} ; il est conservé et fera l'objet d'une
+ * migration dédiée.</p>
+ */
 public class Recolte {
 
-    private long idRecolte;
+    private Long idRecolte;
     private Parcelle parcelle;
     private String reference;
     private LocalDate dateRecolte;
-    private BigDecimal quantiteRecoltee;
+    private BigDecimal quantiteKg;
     private String qualite;
     private String statut;
     private String observation;
@@ -19,15 +28,15 @@ public class Recolte {
     public Recolte() {
     }
 
-    public Recolte(long idRecolte, Parcelle parcelle, String reference,
-                   LocalDate dateRecolte, BigDecimal quantiteRecoltee,
+    public Recolte(Long idRecolte, Parcelle parcelle, String reference,
+                   LocalDate dateRecolte, BigDecimal quantiteKg,
                    String qualite, String statut, String observation,
                    String motifAnnulation, Utilisateur utilisateurCreateur) {
         this.idRecolte = idRecolte;
         this.parcelle = parcelle;
         this.reference = reference;
         this.dateRecolte = dateRecolte;
-        this.quantiteRecoltee = quantiteRecoltee;
+        this.quantiteKg = quantiteKg;
         this.qualite = qualite;
         this.statut = statut;
         this.observation = observation;
@@ -37,7 +46,7 @@ public class Recolte {
 
     // ---------- Getters ----------
 
-    public long getIdRecolte() {
+    public Long getIdRecolte() {
         return idRecolte;
     }
 
@@ -53,8 +62,8 @@ public class Recolte {
         return dateRecolte;
     }
 
-    public BigDecimal getQuantiteRecoltee() {
-        return quantiteRecoltee;
+    public BigDecimal getQuantiteKg() {
+        return quantiteKg;
     }
 
     public String getQualite() {
@@ -79,7 +88,7 @@ public class Recolte {
 
     // ---------- Setters ----------
 
-    public void setIdRecolte(long idRecolte) {
+    public void setIdRecolte(Long idRecolte) {
         this.idRecolte = idRecolte;
     }
 
@@ -95,8 +104,8 @@ public class Recolte {
         this.dateRecolte = dateRecolte;
     }
 
-    public void setQuantiteRecoltee(BigDecimal quantiteRecoltee) {
-        this.quantiteRecoltee = quantiteRecoltee;
+    public void setQuantiteKg(BigDecimal quantiteKg) {
+        this.quantiteKg = quantiteKg;
     }
 
     public void setQualite(String qualite) {

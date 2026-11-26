@@ -4,6 +4,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Salaire calculé (table SALAIRE).
+ *
+ * <p>Le statut est prévu par le planning (§ Membre 4) mais n'a pas encore de
+ * colonne dans {@code 001_schema.sql}. {@code detailCalcul} conserve le contenu
+ * JSON brut de la colonne {@code detail_calcul JSONB} : l'instantané des
+ * paramètres de calcul (tarif, période, absences, bonus, montant) exigé par
+ * l'architecture (§ 6.4) y est représenté sans introduire de structure Java ou
+ * de dépendance JSON non prévue par les documents.</p>
+ */
 public class Salaire {
 
     private Long idSalaire;
@@ -16,6 +26,7 @@ public class Salaire {
     private BigDecimal montantPrime;
     private BigDecimal montantTotal;
     private String detailCalcul;
+    private String statut;
 
     public Salaire() {
     }
@@ -23,7 +34,7 @@ public class Salaire {
     public Salaire(Long idSalaire, Long idOuvrier, Long idFerme, Long idTarif,
                    LocalDate periodeDebut, LocalDate periodeFin,
                    BigDecimal montantBase, BigDecimal montantPrime,
-                   BigDecimal montantTotal, String detailCalcul) {
+                   BigDecimal montantTotal, String detailCalcul, String statut) {
         this.idSalaire = idSalaire;
         this.idOuvrier = idOuvrier;
         this.idFerme = idFerme;
@@ -34,6 +45,7 @@ public class Salaire {
         this.montantPrime = montantPrime;
         this.montantTotal = montantTotal;
         this.detailCalcul = detailCalcul;
+        this.statut = statut;
     }
 
     public Long getIdSalaire() { return idSalaire; }
@@ -65,6 +77,9 @@ public class Salaire {
 
     public String getDetailCalcul() { return detailCalcul; }
     public void setDetailCalcul(String detailCalcul) { this.detailCalcul = detailCalcul; }
+
+    public String getStatut() { return statut; }
+    public void setStatut(String statut) { this.statut = statut; }
 
     @Override
     public boolean equals(Object o) {

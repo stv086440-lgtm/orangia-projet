@@ -8,6 +8,12 @@ import java.time.OffsetDateTime;
  * <p>Objet métier simple représentant une clé de configuration, sa valeur,
  * sa description et les informations de dernière modification. Le mapping avec
  * la table SQL PARAMETRE_SYSTEME est assuré par le DAO.</p>
+ *
+ * <p>Décision Sprint 1 : {@code dateModification} est conservé tel quel, avec
+ * {@link java.time.OffsetDateTime} comme type (convention TIMESTAMPTZ du
+ * projet). La colonne {@code date_modification} manque dans
+ * {@code 001_schema.sql} ; son ajout doit faire l'objet d'une migration
+ * dédiée, sans modifier la migration existante.</p>
  */
 public class ParametreSysteme {
 

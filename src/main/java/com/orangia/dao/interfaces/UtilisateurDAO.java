@@ -1,9 +1,8 @@
 package com.orangia.dao.interfaces;
 
 import com.orangia.model.Utilisateur;
-import java.time.OffsetDateTime;
-
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,9 +68,15 @@ public interface UtilisateurDAO {
      * @throws SQLException si une erreur d'accès à la base survient
      */
     void deactivate(Long idUtilisateur) throws SQLException;
-
     /**
-     * Remplace le hash du mot de passe d'un compte.
+     * Active un compte utilisateur.
+    *
+    * @param idUtilisateur identifiant du compte à activer
+    * @throws SQLException si une erreur d'accès à la base survient
+    */
+    void activate(Long idUtilisateur) throws SQLException;
+    /**
+      * Remplace le hash du mot de passe d'un compte.
      *
      * @param idUtilisateur  identifiant du compte concerné
      * @param motDePasseHash nouveau hash du mot de passe, jamais le mot de passe en clair
@@ -105,10 +110,19 @@ public interface UtilisateurDAO {
      * @throws SQLException si une erreur d'accès à la base survient
      */
     void assignFerme(Long idUtilisateur, Long idFerme) throws SQLException;
-    
 
+    /**
+     * Enregistre la date de dernière connexion d'un compte.
+     *
+     * <p>Méthode complémentaire conservée : elle sert au suivi des sessions
+     * sans exposer ni mot de passe ni code alphanumérique.</p>
+     *
+     * @param idUtilisateur     identifiant du compte concerné
+     * @param derniereConnexion date et heure de la connexion
+     * @throws SQLException si une erreur d'accès à la base survient
+     */
     void updateDerniereConnexion(
-    Long idUtilisateur,
-    OffsetDateTime derniereConnexion 
-       ) throws SQLException;
+            Long idUtilisateur,
+            OffsetDateTime derniereConnexion
+    ) throws SQLException;
 }
